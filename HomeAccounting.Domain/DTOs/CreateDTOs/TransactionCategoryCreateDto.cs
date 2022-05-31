@@ -9,7 +9,7 @@ namespace HomeAccounting.Domain.DTOs.CreateDTOs
     public class TransactionCategoryCreateDto
     {
         public string Name { get; set; }
-        public double? Constraint { get; set; }
+        public decimal Constraint { get; set; }
         public int? ParentTransactionCategoryId { get; set; }
     }
 }

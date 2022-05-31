@@ -1,4 +1,5 @@
 ﻿using HomeAccounting.Domain.Models;
+using HomeAccounting.Domain.Models.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -27,5 +28,6 @@ namespace HomeAccounting.Domain.Db
         public DbSet<Ledger> Ledgers { get; set; }
         public DbSet<ParentTransactionCategory> ParentTransactionCategories { get; set; }
         public DbSet<TransactionCategory> TransactionCategories { get; set; }
+        public DbSet<Account> Accounts { get; set; }
     }
 }

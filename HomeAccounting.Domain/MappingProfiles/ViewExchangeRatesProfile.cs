@@ -14,8 +14,8 @@ namespace HomeAccounting.Domain.MappingProfiles
         public ViewExchangeRatesProfile()
         {
             CreateMap<ExchangeRate, ExchangeRatesViewDTO>()
-                .ForMember(x => x.CurrencyFrom, src => src.MapFrom(x => x.CurrencyFrom.Code))
-                .ForMember(x => x.CurrencyTo, src => src.MapFrom(x => x.CurrencyTo.Code));
+                .ForMember(x => x.CurrencyFrom, src => src.MapFrom(x => x.CurrencyFromCode))
+                .ForMember(x => x.CurrencyTo, src => src.MapFrom(x => x.CurrencyToCode));
         }
     }
 }
