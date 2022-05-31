@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HomeAccounting.Domain.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20220531120400_Init")]
-    partial class Init
+    [Migration("20220531164042_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -46,7 +46,7 @@ namespace HomeAccounting.Domain.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("MainCurrencyId")
+                    b.Property<string>("MainCurrencyCode")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("NormalizedEmail")
@@ -78,7 +78,7 @@ namespace HomeAccounting.Domain.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MainCurrencyId");
+                    b.HasIndex("MainCurrencyCode");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -126,7 +126,7 @@ namespace HomeAccounting.Domain.Migrations
 
                     b.HasIndex("TransactionCategoryId");
 
-                    b.ToTable("Account");
+                    b.ToTable("Accounts");
                 });
 
             modelBuilder.Entity("HomeAccounting.Domain.Models.ExchangeRate", b =>
@@ -142,23 +142,23 @@ namespace HomeAccounting.Domain.Migrations
                     b.Property<decimal>("AmountTo")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("CurrencyFromCode")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("CurrencyFromId")
+                    b.Property<int>("CurrencyFromCode")
                         .HasColumnType("int");
 
-                    b.Property<string>("CurrencyToCode")
+                    b.Property<string>("CurrencyFromCode1")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("CurrencyToId")
+                    b.Property<int>("CurrencyToCode")
                         .HasColumnType("int");
+
+                    b.Property<string>("CurrencyToCode1")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CurrencyFromCode");
+                    b.HasIndex("CurrencyFromCode1");
 
-                    b.HasIndex("CurrencyToCode");
+                    b.HasIndex("CurrencyToCode1");
 
                     b.ToTable("ExchangeRates");
                 });
@@ -397,7 +397,7 @@ namespace HomeAccounting.Domain.Migrations
                 {
                     b.HasOne("HomeAccounting.Domain.Models.Currency", "MainCurrency")
                         .WithMany()
-                        .HasForeignKey("MainCurrencyId");
+                        .HasForeignKey("MainCurrencyCode");
 
                     b.Navigation("MainCurrency");
                 });
@@ -421,11 +421,11 @@ namespace HomeAccounting.Domain.Migrations
                 {
                     b.HasOne("HomeAccounting.Domain.Models.Currency", "CurrencyFrom")
                         .WithMany()
-                        .HasForeignKey("CurrencyFromCode");
+                        .HasForeignKey("CurrencyFromCode1");
 
                     b.HasOne("HomeAccounting.Domain.Models.Currency", "CurrencyTo")
                         .WithMany()
-                        .HasForeignKey("CurrencyToCode");
+                        .HasForeignKey("CurrencyToCode1");
 
                     b.Navigation("CurrencyFrom");
 
