@@ -11,6 +11,7 @@ namespace HomeAccounting.Domain.Models
     {
         [Key]
         public int Id { get; set; }
+        public int ParentTransactionCategoryId { get; set; }
         public ParentTransactionCategory? ParentTransactionCategory { get; set; }
         public string Name { get; set; }
         public AppUser User { get; set; }
