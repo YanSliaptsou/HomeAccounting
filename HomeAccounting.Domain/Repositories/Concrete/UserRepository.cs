@@ -23,7 +23,7 @@ namespace HomeAccounting.Domain.Repositories.Concrete
              AppUser user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
              Currency currency = await _context.Currencies.FirstOrDefaultAsync(x => x.Code == currencyCode);
 
-             user.CurrencyId = currency.Code;
+             user.MainCurrencyId = currency.Code;
         }
     }
 }

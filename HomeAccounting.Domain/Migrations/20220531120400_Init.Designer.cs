@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HomeAccounting.Domain.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20220531052840_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20220531120400_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -33,9 +33,6 @@ namespace HomeAccounting.Domain.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("CurrencyId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -48,6 +45,9 @@ namespace HomeAccounting.Domain.Migrations
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("MainCurrencyId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -78,7 +78,7 @@ namespace HomeAccounting.Domain.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CurrencyId");
+                    b.HasIndex("MainCurrencyId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -107,6 +107,28 @@ namespace HomeAccounting.Domain.Migrations
                     b.ToTable("Currencies");
                 });
 
+            modelBuilder.Entity("HomeAccounting.Domain.Models.Entities.Account", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("AppUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int?>("TransactionCategoryId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
+
+                    b.HasIndex("TransactionCategoryId");
+
+                    b.ToTable("Account");
+                });
+
             modelBuilder.Entity("HomeAccounting.Domain.Models.ExchangeRate", b =>
                 {
                     b.Property<int>("Id")
@@ -114,17 +136,23 @@ namespace HomeAccounting.Domain.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<double>("AmountFrom")
-                        .HasColumnType("float");
+                    b.Property<decimal>("AmountFrom")
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<double>("AmountTo")
-                        .HasColumnType("float");
+                    b.Property<decimal>("AmountTo")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("CurrencyFromCode")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<int>("CurrencyFromId")
+                        .HasColumnType("int");
+
                     b.Property<string>("CurrencyToCode")
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("CurrencyToId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -142,16 +170,22 @@ namespace HomeAccounting.Domain.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("CategoryFromId")
+                    b.Property<int?>("AccountFromId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CategoryToId")
+                    b.Property<int>("AccountToId")
                         .HasColumnType("int");
 
-                    b.Property<string>("CurrencyFromCode")
+                    b.Property<decimal?>("AmmountFrom")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("AmmountTo")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("CurrencyFromId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("CurrencyToCode")
+                    b.Property<string>("CurrencyToId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Type")
@@ -162,13 +196,13 @@ namespace HomeAccounting.Domain.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryFromId");
+                    b.HasIndex("AccountFromId");
 
-                    b.HasIndex("CategoryToId");
+                    b.HasIndex("AccountToId");
 
-                    b.HasIndex("CurrencyFromCode");
+                    b.HasIndex("CurrencyFromId");
 
-                    b.HasIndex("CurrencyToCode");
+                    b.HasIndex("CurrencyToId");
 
                     b.HasIndex("UserId");
 
@@ -185,10 +219,15 @@ namespace HomeAccounting.Domain.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("ParentTransactionCategoryId")
+                        .HasColumnType("int");
+
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ParentTransactionCategoryId");
 
                     b.HasIndex("UserId");
 
@@ -202,8 +241,8 @@ namespace HomeAccounting.Domain.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<double?>("Constraint")
-                        .HasColumnType("float");
+                    b.Property<decimal>("Constraint")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -358,9 +397,24 @@ namespace HomeAccounting.Domain.Migrations
                 {
                     b.HasOne("HomeAccounting.Domain.Models.Currency", "MainCurrency")
                         .WithMany()
-                        .HasForeignKey("CurrencyId");
+                        .HasForeignKey("MainCurrencyId");
 
                     b.Navigation("MainCurrency");
+                });
+
+            modelBuilder.Entity("HomeAccounting.Domain.Models.Entities.Account", b =>
+                {
+                    b.HasOne("HomeAccounting.Domain.Models.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("AppUserId");
+
+                    b.HasOne("HomeAccounting.Domain.Models.TransactionCategory", "TransactionCategory")
+                        .WithMany()
+                        .HasForeignKey("TransactionCategoryId");
+
+                    b.Navigation("AppUser");
+
+                    b.Navigation("TransactionCategory");
                 });
 
             modelBuilder.Entity("HomeAccounting.Domain.Models.ExchangeRate", b =>
@@ -380,29 +434,31 @@ namespace HomeAccounting.Domain.Migrations
 
             modelBuilder.Entity("HomeAccounting.Domain.Models.Ledger", b =>
                 {
-                    b.HasOne("HomeAccounting.Domain.Models.TransactionCategory", "CategoryFrom")
+                    b.HasOne("HomeAccounting.Domain.Models.Entities.Account", "AccountFrom")
                         .WithMany()
-                        .HasForeignKey("CategoryFromId");
+                        .HasForeignKey("AccountFromId");
 
-                    b.HasOne("HomeAccounting.Domain.Models.TransactionCategory", "CategoryTo")
+                    b.HasOne("HomeAccounting.Domain.Models.Entities.Account", "AccountTo")
                         .WithMany()
-                        .HasForeignKey("CategoryToId");
+                        .HasForeignKey("AccountToId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("HomeAccounting.Domain.Models.Currency", "CurrencyFrom")
                         .WithMany()
-                        .HasForeignKey("CurrencyFromCode");
+                        .HasForeignKey("CurrencyFromId");
 
                     b.HasOne("HomeAccounting.Domain.Models.Currency", "CurrencyTo")
                         .WithMany()
-                        .HasForeignKey("CurrencyToCode");
+                        .HasForeignKey("CurrencyToId");
 
                     b.HasOne("HomeAccounting.Domain.Models.AppUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
 
-                    b.Navigation("CategoryFrom");
+                    b.Navigation("AccountFrom");
 
-                    b.Navigation("CategoryTo");
+                    b.Navigation("AccountTo");
 
                     b.Navigation("CurrencyFrom");
 
@@ -413,6 +469,10 @@ namespace HomeAccounting.Domain.Migrations
 
             modelBuilder.Entity("HomeAccounting.Domain.Models.ParentTransactionCategory", b =>
                 {
+                    b.HasOne("HomeAccounting.Domain.Models.ParentTransactionCategory", null)
+                        .WithMany("ParentTransactionCategories")
+                        .HasForeignKey("ParentTransactionCategoryId");
+
                     b.HasOne("HomeAccounting.Domain.Models.AppUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
@@ -484,6 +544,11 @@ namespace HomeAccounting.Domain.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("HomeAccounting.Domain.Models.ParentTransactionCategory", b =>
+                {
+                    b.Navigation("ParentTransactionCategories");
                 });
 #pragma warning restore 612, 618
         }
