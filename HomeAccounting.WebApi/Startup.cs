@@ -5,7 +5,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
-using HomeAccounting.Domain.DatabaseContext;
+using HomeAccounting.Domain.Repositories.Abstarct;
+using HomeAccounting.Domain.Repositories.Concrete;
+using HomeAccounting.Domain.Db;
+using HomeAccounting.Domain.MappingProfiles;
 
 namespace HomeAccounting.WebApi
 {
@@ -31,6 +34,14 @@ namespace HomeAccounting.WebApi
             {
                 opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
+
+            services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<IExchangeRatesRepository, ExhangeRatesRepository>();
+            services.AddTransient<ITransactionCategoryRepository, TransactionCategoryRepository>();
+            services.AddAutoMapper(typeof(CreateTransactionCategoryProfile).Assembly);
+            services.AddAutoMapper(typeof(ViewTransactionCategoryProfile).Assembly);
+            services.AddAutoMapper(typeof(ViewExchangeRatesProfile).Assembly);
+            services.AddCors();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

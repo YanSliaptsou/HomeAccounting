@@ -7,13 +7,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HomeAccounting.Domain.DatabaseContext
+namespace HomeAccounting.Domain.Db
 {
-    class DatabaseContext : IdentityDbContext<AppUser>
+    public class DatabaseContext : IdentityDbContext<AppUser>
     {
         public DatabaseContext(DbContextOptions options) : base(options)
         {
             //Database.EnsureCreatedAsync();
+        }
+
+        public DatabaseContext()
+        {
+
         }
 
         public override DbSet<AppUser> Users { get; set; }

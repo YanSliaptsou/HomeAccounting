@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace HomeAccounting.WebApi.Migrations
+namespace HomeAccounting.Domain.Migrations
 {
     public partial class InitialMigration : Migration
     {
@@ -60,8 +60,7 @@ namespace HomeAccounting.WebApi.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    CurrencyId = table.Column<int>(type: "int", nullable: false),
-                    MainCurrencyCode = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CurrencyId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -81,8 +80,8 @@ namespace HomeAccounting.WebApi.Migrations
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AspNetUsers_Currencies_MainCurrencyCode",
-                        column: x => x.MainCurrencyCode,
+                        name: "FK_AspNetUsers_Currencies_CurrencyId",
+                        column: x => x.CurrencyId,
                         principalTable: "Currencies",
                         principalColumn: "Code",
                         onDelete: ReferentialAction.Restrict);
@@ -207,7 +206,7 @@ namespace HomeAccounting.WebApi.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
@@ -228,7 +227,7 @@ namespace HomeAccounting.WebApi.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ParentTransactionCategoryId = table.Column<int>(type: "int", nullable: true),
-                    Name = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Constraint = table.Column<double>(type: "float", nullable: true)
                 },
@@ -330,9 +329,9 @@ namespace HomeAccounting.WebApi.Migrations
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AspNetUsers_MainCurrencyCode",
+                name: "IX_AspNetUsers_CurrencyId",
                 table: "AspNetUsers",
-                column: "MainCurrencyCode");
+                column: "CurrencyId");
 
             migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
