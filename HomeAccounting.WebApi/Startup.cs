@@ -9,6 +9,9 @@ using HomeAccounting.Domain.Repositories.Abstarct;
 using HomeAccounting.Domain.Repositories.Concrete;
 using HomeAccounting.Domain.Db;
 using HomeAccounting.Domain.MappingProfiles;
+using HomeAccounting.Domain.Models;
+using Microsoft.AspNetCore.Identity;
+using HomeAccounting.WebApi.MappingProfiles;
 
 namespace HomeAccounting.WebApi
 {
@@ -41,7 +44,22 @@ namespace HomeAccounting.WebApi
             services.AddAutoMapper(typeof(CreateTransactionCategoryProfile).Assembly);
             services.AddAutoMapper(typeof(ViewTransactionCategoryProfile).Assembly);
             services.AddAutoMapper(typeof(ViewExchangeRatesProfile).Assembly);
+            services.AddAutoMapper(typeof(UsersAccountsProfile).Assembly);
             services.AddCors();
+            /*services.AddIdentityCore<AppUser>(opt =>
+            {
+                //opt.Password.RequireNonAlphanumeric = false;
+            })
+                .AddSignInManager<SignInManager<AppUser>>()
+                .AddUserManager<UserManager<AppUser>>()
+                .AddEntityFrameworkStores<DatabaseContext>();*/
+
+            services.AddIdentity<AppUser, IdentityRole>(opt =>
+            {
+                opt.User.RequireUniqueEmail = false;
+            })
+                .AddEntityFrameworkStores<DatabaseContext>()
+                .AddDefaultTokenProviders();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
