@@ -15,9 +15,7 @@ namespace HomeAccounting.Domain.MappingProfiles
         public CreateTransactionCategoryProfile()
         {
 
-            CreateMap<TransactionCategoryCreateDto, TransactionCategory>()
-                .ForMember(x => x.ParentTransactionCategory.Id, opt => opt
-                .MapFrom(src => src.ParentTransactionCategoryId));
+            CreateMap<TransactionCategoryCreateDto, TransactionCategory>();
         }
     }
 }

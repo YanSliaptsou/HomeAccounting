@@ -13,5 +13,6 @@ namespace HomeAccounting.Domain.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public AppUser User { get; set; }
+        public ICollection<ParentTransactionCategory> ParentTransactionCategories { get; set; }
     }
 }
