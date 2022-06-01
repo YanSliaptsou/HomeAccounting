@@ -2,6 +2,7 @@
 using HomeAccounting.Infrastructure.Helpers;
 using HomeAccounting.Infrastructure.Services.Abstract;
 using MailKit.Net.Smtp;
+using MailKit.Security;
 using MimeKit;
 using System;
 using System.Collections.Generic;
@@ -42,14 +43,15 @@ namespace HomeAccounting.Infrastructure.Services.Concrete
             {
                 try
                 {
-                    client.Connect(_emailConfig.SmtpServer, _emailConfig.Port, true);
+                    client.ServerCertificateValidationCallback = (s, c, h, e) => true;
+
+                    client.Connect(_emailConfig.SmtpServer, _emailConfig.Port, SecureSocketOptions.Auto);
                     client.AuthenticationMechanisms.Remove("XOAUTH2");
                     client.Authenticate(_emailConfig.UserName, _emailConfig.Password);
                     client.Send(mailMessage);
                 }
                 catch
                 {
-                    //log an error message or throw an exception or both.
                     throw;
                 }
                 finally
