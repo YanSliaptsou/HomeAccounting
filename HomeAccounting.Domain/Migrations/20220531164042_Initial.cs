@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace HomeAccounting.Domain.Migrations
 {
-    public partial class Init : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -60,7 +60,7 @@ namespace HomeAccounting.Domain.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    MainCurrencyId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    MainCurrencyCode = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -80,8 +80,8 @@ namespace HomeAccounting.Domain.Migrations
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AspNetUsers_Currencies_MainCurrencyId",
-                        column: x => x.MainCurrencyId,
+                        name: "FK_AspNetUsers_Currencies_MainCurrencyCode",
+                        column: x => x.MainCurrencyCode,
                         principalTable: "Currencies",
                         principalColumn: "Code",
                         onDelete: ReferentialAction.Restrict);
@@ -93,10 +93,10 @@ namespace HomeAccounting.Domain.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    CurrencyFromCode = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    CurrencyToCode = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    CurrencyFromId = table.Column<int>(type: "int", nullable: false),
-                    CurrencyToId = table.Column<int>(type: "int", nullable: false),
+                    CurrencyFromCode1 = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CurrencyToCode1 = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CurrencyFromCode = table.Column<int>(type: "int", nullable: false),
+                    CurrencyToCode = table.Column<int>(type: "int", nullable: false),
                     AmountFrom = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     AmountTo = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
@@ -104,14 +104,14 @@ namespace HomeAccounting.Domain.Migrations
                 {
                     table.PrimaryKey("PK_ExchangeRates", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ExchangeRates_Currencies_CurrencyFromCode",
-                        column: x => x.CurrencyFromCode,
+                        name: "FK_ExchangeRates_Currencies_CurrencyFromCode1",
+                        column: x => x.CurrencyFromCode1,
                         principalTable: "Currencies",
                         principalColumn: "Code",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_ExchangeRates_Currencies_CurrencyToCode",
-                        column: x => x.CurrencyToCode,
+                        name: "FK_ExchangeRates_Currencies_CurrencyToCode1",
+                        column: x => x.CurrencyToCode1,
                         principalTable: "Currencies",
                         principalColumn: "Code",
                         onDelete: ReferentialAction.Restrict);
@@ -258,7 +258,7 @@ namespace HomeAccounting.Domain.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Account",
+                name: "Accounts",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -268,15 +268,15 @@ namespace HomeAccounting.Domain.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Account", x => x.Id);
+                    table.PrimaryKey("PK_Accounts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Account_AspNetUsers_AppUserId",
+                        name: "FK_Accounts_AspNetUsers_AppUserId",
                         column: x => x.AppUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Account_TransactionCategories_TransactionCategoryId",
+                        name: "FK_Accounts_TransactionCategories_TransactionCategoryId",
                         column: x => x.TransactionCategoryId,
                         principalTable: "TransactionCategories",
                         principalColumn: "Id",
@@ -302,15 +302,15 @@ namespace HomeAccounting.Domain.Migrations
                 {
                     table.PrimaryKey("PK_Ledgers", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Ledgers_Account_AccountFromId",
+                        name: "FK_Ledgers_Accounts_AccountFromId",
                         column: x => x.AccountFromId,
-                        principalTable: "Account",
+                        principalTable: "Accounts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Ledgers_Account_AccountToId",
+                        name: "FK_Ledgers_Accounts_AccountToId",
                         column: x => x.AccountToId,
-                        principalTable: "Account",
+                        principalTable: "Accounts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -334,13 +334,13 @@ namespace HomeAccounting.Domain.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Account_AppUserId",
-                table: "Account",
+                name: "IX_Accounts_AppUserId",
+                table: "Accounts",
                 column: "AppUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Account_TransactionCategoryId",
-                table: "Account",
+                name: "IX_Accounts_TransactionCategoryId",
+                table: "Accounts",
                 column: "TransactionCategoryId");
 
             migrationBuilder.CreateIndex(
@@ -376,9 +376,9 @@ namespace HomeAccounting.Domain.Migrations
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AspNetUsers_MainCurrencyId",
+                name: "IX_AspNetUsers_MainCurrencyCode",
                 table: "AspNetUsers",
-                column: "MainCurrencyId");
+                column: "MainCurrencyCode");
 
             migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
@@ -388,14 +388,14 @@ namespace HomeAccounting.Domain.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ExchangeRates_CurrencyFromCode",
+                name: "IX_ExchangeRates_CurrencyFromCode1",
                 table: "ExchangeRates",
-                column: "CurrencyFromCode");
+                column: "CurrencyFromCode1");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ExchangeRates_CurrencyToCode",
+                name: "IX_ExchangeRates_CurrencyToCode1",
                 table: "ExchangeRates",
-                column: "CurrencyToCode");
+                column: "CurrencyToCode1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Ledgers_AccountFromId",
@@ -470,7 +470,7 @@ namespace HomeAccounting.Domain.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "Account");
+                name: "Accounts");
 
             migrationBuilder.DropTable(
                 name: "TransactionCategories");

@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomeAccounting.WebApi", "Ho
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomeAccounting.Domain", "HomeAccounting.Domain\HomeAccounting.Domain.csproj", "{C562AEC6-BC05-4F34-924B-277885287064}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeAccounting.Infrastructure", "HomeAccounting.Infrastructure\HomeAccounting.Infrastructure.csproj", "{A133A36D-6B81-41BB-839E-BB33B92E1A29}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomeAccounting.Infrastructure", "HomeAccounting.Infrastructure\HomeAccounting.Infrastructure.csproj", "{A133A36D-6B81-41BB-839E-BB33B92E1A29}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

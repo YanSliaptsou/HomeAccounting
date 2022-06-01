@@ -17,10 +17,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HomeAccounting.Domain\HomeAccounting.Domain.csproj" />
+    <ProjectReference Include="..\HomeAccounting.Infrastructure\HomeAccounting.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\AuthentificationDTOs\" />
     <Folder Include="Migrations\" />
   </ItemGroup>
 

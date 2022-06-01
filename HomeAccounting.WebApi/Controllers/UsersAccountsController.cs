@@ -1,11 +1,14 @@
 ﻿using AutoMapper;
 using HomeAccounting.Domain.Models;
+using HomeAccounting.Infrastructure.Services.Abstract;
 using HomeAccounting.WebApi.Controllers.BaseController;
+using HomeAccounting.WebApi.DTOs.AuthentificationDTOs;
 using HomeAccounting.WebApi.DTOs.RegistrationDTOs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,12 +19,15 @@ namespace HomeAccounting.WebApi.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly IMapper _mapper;
-        public UsersAccountsController(UserManager<AppUser> userManager, IMapper mapper)
+        private readonly ITokenService _tokenService;
+        public UsersAccountsController(UserManager<AppUser> userManager, IMapper mapper, ITokenService tokenService)
         {
             _userManager = userManager;
             _mapper = mapper;
+            _tokenService = tokenService;
         }
-        [HttpPost("Registration")]
+
+        [HttpPost("Register")]
         public async Task<IActionResult> RegisterUser([FromBody] UserRegistrationRequestDTO userForRegistration)
         {
             if (userForRegistration == null || !ModelState.IsValid)
@@ -37,6 +43,19 @@ namespace HomeAccounting.WebApi.Controllers
             }
 
             return Ok(userForRegistration);
+        }
+
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login([FromBody] UserAuthenticationRequestDTO userForAuthentication)
+        {
+            var user = await _userManager.FindByEmailAsync(userForAuthentication.Email);
+            if (user == null || !await _userManager.CheckPasswordAsync(user, userForAuthentication.Password))
+                return Unauthorized(new UserAuthenticationResponseDTO { ErrorMessage = "Invalid Authentication" });
+            var signingCredentials = _tokenService.GetSigningCredentials();
+            var claims = _tokenService.GetClaims(user);
+            var tokenOptions = _tokenService.GenerateTokenOptions(signingCredentials, claims);
+            var token = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+            return Ok(new UserAuthenticationResponseDTO { IsAuthSuccessful = true, Token = token });
         }
     }
 }

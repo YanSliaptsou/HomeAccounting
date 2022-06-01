@@ -12,6 +12,11 @@ using HomeAccounting.Domain.MappingProfiles;
 using HomeAccounting.Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using HomeAccounting.WebApi.MappingProfiles;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using HomeAccounting.Infrastructure.Services.Abstract;
+using HomeAccounting.Infrastructure.Services.Concrete;
 
 namespace HomeAccounting.WebApi
 {
@@ -27,6 +32,27 @@ namespace HomeAccounting.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var jwtSettings = Configuration.GetSection("JwtSettings");
+
+            services.AddAuthentication(opt =>
+            {
+                opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings["validIssuer"],
+                    ValidAudience = jwtSettings["validAudience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8
+            .GetBytes(jwtSettings.GetSection("securityKey").Value))
+                };
+            });
+
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -41,18 +67,12 @@ namespace HomeAccounting.WebApi
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IExchangeRatesRepository, ExhangeRatesRepository>();
             services.AddTransient<ITransactionCategoryRepository, TransactionCategoryRepository>();
+            services.AddTransient<ITokenService, TokenService>();
             services.AddAutoMapper(typeof(CreateTransactionCategoryProfile).Assembly);
             services.AddAutoMapper(typeof(ViewTransactionCategoryProfile).Assembly);
             services.AddAutoMapper(typeof(ViewExchangeRatesProfile).Assembly);
             services.AddAutoMapper(typeof(UsersAccountsProfile).Assembly);
             services.AddCors();
-            /*services.AddIdentityCore<AppUser>(opt =>
-            {
-                //opt.Password.RequireNonAlphanumeric = false;
-            })
-                .AddSignInManager<SignInManager<AppUser>>()
-                .AddUserManager<UserManager<AppUser>>()
-                .AddEntityFrameworkStores<DatabaseContext>();*/
 
             services.AddIdentity<AppUser, IdentityRole>(opt =>
             {
@@ -75,6 +95,8 @@ namespace HomeAccounting.WebApi
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
