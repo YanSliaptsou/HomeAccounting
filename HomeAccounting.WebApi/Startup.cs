@@ -17,6 +17,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using HomeAccounting.Infrastructure.Services.Abstract;
 using HomeAccounting.Infrastructure.Services.Concrete;
+using HomeAccounting.Infrastructure.Configurations;
 
 namespace HomeAccounting.WebApi
 {
@@ -80,6 +81,12 @@ namespace HomeAccounting.WebApi
             })
                 .AddEntityFrameworkStores<DatabaseContext>()
                 .AddDefaultTokenProviders();
+
+            var emailConfig = Configuration
+                .GetSection("EmailConfiguration")
+                .Get<EmailConfiguration>();
+            services.AddSingleton(emailConfig);
+            services.AddTransient<IEmailSender, EmailSender>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

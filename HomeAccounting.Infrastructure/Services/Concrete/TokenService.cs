@@ -38,7 +38,8 @@ namespace HomeAccounting.Infrastructure.Services.Concrete
         {
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Email)
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Name, user.UserName)
             };
             return claims;
         }
