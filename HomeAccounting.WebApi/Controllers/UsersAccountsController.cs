@@ -52,6 +52,12 @@ namespace HomeAccounting.WebApi.Controllers
                 {"token", token },
                 {"email", user.Email }
             };
+
+            if (userForRegistration.ClientURI == null)
+            {
+                userForRegistration.ClientURI = "http://localhost/authenticate";
+            }
+
             var callback = QueryHelpers.AddQueryString(userForRegistration.ClientURI, param);
             var textToSend = $"Dear User {user.UserName}, " + "\n" + "We got a request from you for confirming your email." + "\n" +
                 "Please, follow the next link to confirm your email:" + "\n" + callback;
