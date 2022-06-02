@@ -69,6 +69,7 @@ namespace HomeAccounting.WebApi
             services.AddTransient<IExchangeRatesRepository, ExhangeRatesRepository>();
             services.AddTransient<ITransactionCategoryRepository, TransactionCategoryRepository>();
             services.AddTransient<ITokenService, TokenService>();
+            services.AddTransient<IExchangeRatesService, ExchangeRatesService>();
             services.AddAutoMapper(typeof(CreateTransactionCategoryProfile).Assembly);
             services.AddAutoMapper(typeof(ViewTransactionCategoryProfile).Assembly);
             services.AddAutoMapper(typeof(ViewExchangeRatesProfile).Assembly);

@@ -13,8 +13,8 @@ namespace HomeAccounting.Domain.Models
         public int Id { get; set; }
         public Currency CurrencyFrom { get; set; }
         public Currency CurrencyTo { get; set; }
-        public int CurrencyFromId { get; set; }
-        public int CurrencyToId { get; set; }
+        public string CurrencyFromId { get; set; }
+        public string CurrencyToId { get; set; }
         public decimal AmountFrom { get; set; }
         public decimal AmountTo { get; set; }
     }
