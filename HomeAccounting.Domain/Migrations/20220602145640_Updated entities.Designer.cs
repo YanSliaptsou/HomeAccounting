@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HomeAccounting.Domain.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20220531164042_Initial")]
-    partial class Initial
+    [Migration("20220602145640_Updated entities")]
+    partial class Updatedentities
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -46,7 +46,7 @@ namespace HomeAccounting.Domain.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("MainCurrencyCode")
+                    b.Property<string>("MainCurrencyId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("NormalizedEmail")
@@ -78,7 +78,7 @@ namespace HomeAccounting.Domain.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MainCurrencyCode");
+                    b.HasIndex("MainCurrencyId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -93,7 +93,7 @@ namespace HomeAccounting.Domain.Migrations
 
             modelBuilder.Entity("HomeAccounting.Domain.Models.Currency", b =>
                 {
-                    b.Property<string>("Code")
+                    b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
@@ -102,7 +102,7 @@ namespace HomeAccounting.Domain.Migrations
                     b.Property<string>("Symbol")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Code");
+                    b.HasKey("Id");
 
                     b.ToTable("Currencies");
                 });
@@ -117,12 +117,23 @@ namespace HomeAccounting.Domain.Migrations
                     b.Property<string>("AppUserId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<decimal>("Constraint")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("CurrencyId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int?>("TransactionCategoryId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AppUserId");
+
+                    b.HasIndex("CurrencyId");
 
                     b.HasIndex("TransactionCategoryId");
 
@@ -142,23 +153,17 @@ namespace HomeAccounting.Domain.Migrations
                     b.Property<decimal>("AmountTo")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("CurrencyFromCode")
-                        .HasColumnType("int");
-
-                    b.Property<string>("CurrencyFromCode1")
+                    b.Property<string>("CurrencyFromId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("CurrencyToCode")
-                        .HasColumnType("int");
-
-                    b.Property<string>("CurrencyToCode1")
+                    b.Property<string>("CurrencyToId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CurrencyFromCode1");
+                    b.HasIndex("CurrencyFromId");
 
-                    b.HasIndex("CurrencyToCode1");
+                    b.HasIndex("CurrencyToId");
 
                     b.ToTable("ExchangeRates");
                 });
@@ -182,11 +187,8 @@ namespace HomeAccounting.Domain.Migrations
                     b.Property<decimal>("AmmountTo")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("CurrencyFromId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("CurrencyToId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Type")
                         .HasColumnType("nvarchar(max)");
@@ -199,10 +201,6 @@ namespace HomeAccounting.Domain.Migrations
                     b.HasIndex("AccountFromId");
 
                     b.HasIndex("AccountToId");
-
-                    b.HasIndex("CurrencyFromId");
-
-                    b.HasIndex("CurrencyToId");
 
                     b.HasIndex("UserId");
 
@@ -240,9 +238,6 @@ namespace HomeAccounting.Domain.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<decimal>("Constraint")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -397,7 +392,7 @@ namespace HomeAccounting.Domain.Migrations
                 {
                     b.HasOne("HomeAccounting.Domain.Models.Currency", "MainCurrency")
                         .WithMany()
-                        .HasForeignKey("MainCurrencyCode");
+                        .HasForeignKey("MainCurrencyId");
 
                     b.Navigation("MainCurrency");
                 });
@@ -408,11 +403,17 @@ namespace HomeAccounting.Domain.Migrations
                         .WithMany()
                         .HasForeignKey("AppUserId");
 
+                    b.HasOne("HomeAccounting.Domain.Models.Currency", "currency")
+                        .WithMany()
+                        .HasForeignKey("CurrencyId");
+
                     b.HasOne("HomeAccounting.Domain.Models.TransactionCategory", "TransactionCategory")
                         .WithMany()
                         .HasForeignKey("TransactionCategoryId");
 
                     b.Navigation("AppUser");
+
+                    b.Navigation("currency");
 
                     b.Navigation("TransactionCategory");
                 });
@@ -421,11 +422,11 @@ namespace HomeAccounting.Domain.Migrations
                 {
                     b.HasOne("HomeAccounting.Domain.Models.Currency", "CurrencyFrom")
                         .WithMany()
-                        .HasForeignKey("CurrencyFromCode1");
+                        .HasForeignKey("CurrencyFromId");
 
                     b.HasOne("HomeAccounting.Domain.Models.Currency", "CurrencyTo")
                         .WithMany()
-                        .HasForeignKey("CurrencyToCode1");
+                        .HasForeignKey("CurrencyToId");
 
                     b.Navigation("CurrencyFrom");
 
@@ -444,14 +445,6 @@ namespace HomeAccounting.Domain.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("HomeAccounting.Domain.Models.Currency", "CurrencyFrom")
-                        .WithMany()
-                        .HasForeignKey("CurrencyFromId");
-
-                    b.HasOne("HomeAccounting.Domain.Models.Currency", "CurrencyTo")
-                        .WithMany()
-                        .HasForeignKey("CurrencyToId");
-
                     b.HasOne("HomeAccounting.Domain.Models.AppUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
@@ -459,10 +452,6 @@ namespace HomeAccounting.Domain.Migrations
                     b.Navigation("AccountFrom");
 
                     b.Navigation("AccountTo");
-
-                    b.Navigation("CurrencyFrom");
-
-                    b.Navigation("CurrencyTo");
 
                     b.Navigation("User");
                 });
