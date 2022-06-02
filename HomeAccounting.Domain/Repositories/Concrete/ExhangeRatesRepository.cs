@@ -31,8 +31,8 @@ namespace HomeAccounting.Domain.Repositories.Concrete
 
         public async Task<IEnumerable<ExchangeRatesViewDTO>> GetConcreteCurrencyExchangeRate(string currencyCode)
         {
-            return await _databaseContext.ExchangeRates.Where(x => x.CurrencyFrom.Code == currencyCode || 
-                    x.CurrencyTo.Code == currencyCode).ProjectTo<ExchangeRatesViewDTO>(_mapper.ConfigurationProvider).ToListAsync();
+            return await _databaseContext.ExchangeRates.Where(x => x.CurrencyFrom.Id == currencyCode || 
+                    x.CurrencyTo.Id == currencyCode).ProjectTo<ExchangeRatesViewDTO>(_mapper.ConfigurationProvider).ToListAsync();
         }
     }
 }
