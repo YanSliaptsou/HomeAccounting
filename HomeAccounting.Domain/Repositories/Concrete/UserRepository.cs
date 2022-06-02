@@ -21,9 +21,9 @@ namespace HomeAccounting.Domain.Repositories.Concrete
         public async Task ChangeMainCurrency(string userId, string currencyCode)
         {
              AppUser user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
-             Currency currency = await _context.Currencies.FirstOrDefaultAsync(x => x.Code == currencyCode);
+             Currency currency = await _context.Currencies.FirstOrDefaultAsync(x => x.Id == currencyCode);
 
-             user.MainCurrencyCode = currency.Code;
+             user.MainCurrencyId = currency.Id;
         }
     }
 }
