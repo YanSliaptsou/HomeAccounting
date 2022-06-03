@@ -5,10 +5,11 @@ import { AppComponent } from './app.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { MenuComponent } from './menu/menu.component';
 import { HomeComponent } from './home/home.component';
-import { HttpClientModule } from '@angular/common/http';
-import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap/'
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { NotfoundComponent } from './notfound/notfound.component';
+import { ErrorHandlerService } from './shared/services/error-handler.service';
+
 
 @NgModule({
   declarations: [
@@ -29,7 +30,11 @@ import { NotfoundComponent } from './notfound/notfound.component';
       { path: '**', redirectTo: '/404', pathMatch: 'full'}
     ])
   ],
-  providers: [],
+  providers: [{
+    provide: HTTP_INTERCEPTORS,
+    useClass: ErrorHandlerService,
+    multi: true
+  }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
