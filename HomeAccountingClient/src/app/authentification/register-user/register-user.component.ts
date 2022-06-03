@@ -1,8 +1,10 @@
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { PasswordConfirmationValidatorService } from 'src/app/shared/custom-validators/password-confirmation-validator.service';
 import { AuthenticationService } from 'src/app/shared/services/authentication.service';
 import { CurrenciesService } from 'src/app/shared/services/currencies.service';
+import { ErrorHandlerService } from 'src/app/shared/services/error-handler.service';
 import { Currency } from 'src/app/_interfaces/currency';
 import { UserForRegistrationDto } from 'src/app/_interfaces/UserForRegistrationDto';
 
@@ -14,18 +16,29 @@ import { UserForRegistrationDto } from 'src/app/_interfaces/UserForRegistrationD
 export class RegisterUserComponent implements OnInit {
 
   registerForm : FormGroup;
+  public errorMessage: string;
+  public showError: boolean;
   currencies: Currency[];
 
-  constructor(private authService: AuthenticationService, private currencyService: CurrenciesService) { }
+  constructor(private authService: AuthenticationService, 
+    private currencyService: CurrenciesService,
+    private confirmValService: PasswordConfirmationValidatorService) { }
 
   ngOnInit(): void {
     this.registerForm = new FormGroup({
       userName: new FormControl('', [Validators.required]),
       email: new FormControl('', [Validators.required, Validators.email]),
       password: new FormControl('', [Validators.required]),
-      mainCurrencyCode: new FormControl(''),
-      confirm: new FormControl(''),
+      mainCurrencyCode: new FormControl('', [Validators.required]),
+      confirm: new FormControl('', [Validators.required]),
       clientURI: new FormControl('')
+    })
+
+    this.registerForm.get('confirm').setValidators([Validators.required, 
+      this.confirmValService.validateConfirmPassword(this.registerForm.get('password'))]);
+
+    this.registerForm.controls.password.valueChanges.subscribe(() => {
+        this.registerForm.controls.confirm.updateValueAndValidity();
     })
 
     this.currencyService.getCurrencies("api/currencies").subscribe((cur: Currency[]) => {
@@ -39,7 +52,9 @@ export class RegisterUserComponent implements OnInit {
     return this.registerForm?.get(controlName).hasError(errorName)
   }
 
+
   public registerUser = (registerFormValue : any) => {
+    this.showError = false;
     const formValues = { ...registerFormValue };
 
     const user: UserForRegistrationDto = {
@@ -52,9 +67,11 @@ export class RegisterUserComponent implements OnInit {
     };
 
     this.authService.registerUser("api/users-accounts/register", user)
-    .subscribe({
-      next: (_) => console.log("Successful registration"),
-      error: (err: HttpErrorResponse) => console.log(err.error.errors)
+    .subscribe(response =>{
+
+    }, error => {
+      this.errorMessage = error;
+      this.showError = true;
     })
 }
 }
