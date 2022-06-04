@@ -72,11 +72,19 @@ namespace HomeAccounting.WebApi.Controllers
         {
             var user = await _userManager.FindByEmailAsync(userForAuthentication.Email);
             if (user == null)
-                return BadRequest("Invalid Request");
+            {
+                user = await _userManager.FindByNameAsync(userForAuthentication.Email);
+                if (user == null)
+                {
+                    return BadRequest("Such user does not exist");
+                }
+            }
+
+            if (!await _userManager.CheckPasswordAsync(user, userForAuthentication.Password))
+                return Unauthorized(new UserAuthenticationResponseDTO { ErrorMessage = "Invalid Password" });
+
             if (!await _userManager.IsEmailConfirmedAsync(user))
                 return Unauthorized(new UserAuthenticationResponseDTO { ErrorMessage = "Email is not confirmed" });
-            if (!await _userManager.CheckPasswordAsync(user, userForAuthentication.Password))
-                return Unauthorized(new UserAuthenticationResponseDTO { ErrorMessage = "Invalid Authentication" });
 
             var signingCredentials = _tokenService.GetSigningCredentials();
             var claims = _tokenService.GetClaims(user);

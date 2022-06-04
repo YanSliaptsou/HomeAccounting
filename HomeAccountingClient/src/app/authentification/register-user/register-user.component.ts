@@ -1,6 +1,7 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { PasswordConfirmationValidatorService } from 'src/app/shared/custom-validators/password-confirmation-validator.service';
 import { AuthenticationService } from 'src/app/shared/services/authentication.service';
 import { CurrenciesService } from 'src/app/shared/services/currencies.service';
@@ -22,7 +23,8 @@ export class RegisterUserComponent implements OnInit {
 
   constructor(private authService: AuthenticationService, 
     private currencyService: CurrenciesService,
-    private confirmValService: PasswordConfirmationValidatorService) { }
+    private confirmValService: PasswordConfirmationValidatorService,
+    private router: Router) { }
 
   ngOnInit(): void {
     this.registerForm = new FormGroup({
@@ -68,7 +70,7 @@ export class RegisterUserComponent implements OnInit {
 
     this.authService.registerUser("api/users-accounts/register", user)
     .subscribe(response =>{
-
+      this.router.navigate(["/authentication/login"])
     }, error => {
       this.errorMessage = error;
       this.showError = true;
