@@ -44,18 +44,7 @@ namespace HomeAccounting.WebApi.Controllers
             }
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var param = new Dictionary<string, string?>
-            {
-                {"token", token },
-                {"email", user.Email }
-            };
-
-            if (userForRegistration.ClientURI == null)
-            {
-                userForRegistration.ClientURI = "http://localhost/authenticate";
-            }
-
-            var callback = QueryHelpers.AddQueryString(userForRegistration.ClientURI, param);
+            var callback = userForRegistration.ClientURI + "?token=" + token + "&email=" + userForRegistration.Email;
             var textToSend = $"Dear User {user.UserName}, " + "\n" + "We got a request from you for confirming your email." + "\n" +
                 "Please, follow the next link to confirm your email:" + "\n" + callback;
             var message = new Message(new string[] { user.Email }, "Email Confirmation token", textToSend);
@@ -137,13 +126,20 @@ namespace HomeAccounting.WebApi.Controllers
         [HttpPost("EmailConfirmation")]
         public async Task<IActionResult> EmailConfirmation([FromQuery] string email, [FromQuery] string token)
         {
+            token = CorrectConfiramtionToken(token);
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
-                return BadRequest("Invalid Email Confirmation Request");
+                return BadRequest("Such user does not exist");
             var confirmResult = await _userManager.ConfirmEmailAsync(user, token);
             if (!confirmResult.Succeeded)
-                return BadRequest("Invalid Email Confirmation Request");
+                return BadRequest("Invalid token");
             return Ok();
+        }
+
+
+        public string CorrectConfiramtionToken(string token)
+        {
+            return token.Replace(" ", "+");
         }
     }
 }

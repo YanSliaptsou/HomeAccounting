@@ -37,10 +37,10 @@ export class ErrorHandlerService implements HttpInterceptor {
 
   private handleUnauthorized = (error: HttpErrorResponse) => {
     if(this.router.url === '/authentication/login') {
-      return 'Authentication failed. Wrong Username or Password';
+      return error.error.errorMessage;
     }
     else {
-      this.router.navigate(['/authentication/login']);
+      this.router.navigate(['/authentication/login'], { queryParams: { returnUrl: this.router.url }});
       return error.message;
     }
   }
@@ -50,7 +50,8 @@ export class ErrorHandlerService implements HttpInterceptor {
     return error.message;
   }
   private handleBadRequest = (error: HttpErrorResponse): string => {
-    if(this.router.url === '/authentication/register' || this.router.url.startsWith('/authentication/resetpassword')){
+    console.log(error)
+    if(this.router.url === '/authentication/register'){
       let message = '';
       const values = Object.values(error.error.errors);
       values.map((m: any) => {
@@ -60,7 +61,7 @@ export class ErrorHandlerService implements HttpInterceptor {
       return message.slice(0, -4);
     }
     else{
-      return error.error
+      return error.error ? error.error : error.error.message;
     }
   }
 }

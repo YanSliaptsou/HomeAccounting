@@ -32,8 +32,7 @@ export class RegisterUserComponent implements OnInit {
       email: new FormControl('', [Validators.required, Validators.email]),
       password: new FormControl('', [Validators.required]),
       mainCurrencyCode: new FormControl('', [Validators.required]),
-      confirm: new FormControl('', [Validators.required]),
-      clientURI: new FormControl('')
+      confirm: new FormControl('', [Validators.required])
     })
 
     this.registerForm.get('confirm').setValidators([Validators.required, 
@@ -65,7 +64,7 @@ export class RegisterUserComponent implements OnInit {
       password: formValues.password,
       confirmPassword: formValues.confirm,
       mainCurrencyCode: formValues.mainCurrencyCode,
-      clientURI: formValues.clientURI
+      clientURI: 'http://localhost:4200/authentication/emailconfirmation'
     };
 
     this.authService.registerUser("api/users-accounts/register", user)
