@@ -7,6 +7,9 @@ import { UserForRegistrationDto } from 'src/app/_interfaces/UserForRegistrationD
 import { environment } from 'src/environments/environment';
 import { ReplaySubject, Subject } from 'rxjs';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { ForgotPasswordDto } from 'src/app/_interfaces/ForgotPassword';
+import { ResetPasswordResponseDto } from 'src/app/_interfaces/ResetPasswordResponseDto';
+import { ResetPasswordDto } from 'src/app/_interfaces/ResetPasswordDto';
 
 @Injectable({
   providedIn: 'root'
@@ -44,5 +47,13 @@ export class AuthenticationService {
     const token = localStorage.getItem("token");
  
     return token && !this.jwtHelper.isTokenExpired(token);
+  }
+
+  public forgotPassword = (route: string, body: ForgotPasswordDto) => {
+    return this.http.post<ResetPasswordResponseDto>(this.createCompleteRoute(route, this.baseUrl), body);
+  }
+
+  public resetPassword = (route: string, body: ResetPasswordDto) => {
+    return this.http.post(this.createCompleteRoute(route, this.baseUrl), body);
   }
 }

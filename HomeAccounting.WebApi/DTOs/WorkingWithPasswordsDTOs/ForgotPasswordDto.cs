@@ -9,7 +9,6 @@ namespace HomeAccounting.WebApi.DTOs.WorkingWithPasswordsDTOs
     public class ForgotPasswordDto
     {
         [Required]
-        [EmailAddress]
         public string? Email { get; set; }
         [Required]
         public string? ClientURI { get; set; }

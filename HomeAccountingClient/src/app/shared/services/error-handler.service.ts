@@ -50,17 +50,17 @@ export class ErrorHandlerService implements HttpInterceptor {
     return error.message;
   }
   private handleBadRequest = (error: HttpErrorResponse): string => {
-    if(this.router.url === '/authentication/register'){
-      console.log('Entered to /authentication/register');
+    if(this.router.url === '/authentication/register' || this.router.url.startsWith('/authentication/resetpassword')){
       let message = '';
       const values = Object.values(error.error.errors);
       values.map((m: any) => {
          message += m + '<br>';
       })
+      console.log(message.slice(0, -4));
       return message.slice(0, -4);
     }
     else{
-      return error.error ? error.error : error.message;
+      return error.error
     }
   }
 }

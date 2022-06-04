@@ -50,6 +50,7 @@ export class LoginComponent implements OnInit {
       this.authService.sendAuthStateChangeNotification(response.isAuthSuccessful);
       this.router.navigate([this.returnUrl])
     }, error => {
+      console.log(error)
       this.errorMessage = error;
       this.showError = true;
     })

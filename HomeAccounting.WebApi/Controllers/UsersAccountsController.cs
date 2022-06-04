@@ -34,9 +34,6 @@ namespace HomeAccounting.WebApi.Controllers
         [HttpPost("Register")]
         public async Task<IActionResult> RegisterUser([FromBody] UserRegistrationRequestDTO userForRegistration)
         {
-            if (userForRegistration == null || !ModelState.IsValid)
-                return BadRequest();
-
             var user = _mapper.Map<AppUser>(userForRegistration);
             var result = await _userManager.CreateAsync(user, userForRegistration.Password);
             if (!result.Succeeded)
@@ -76,7 +73,7 @@ namespace HomeAccounting.WebApi.Controllers
                 user = await _userManager.FindByNameAsync(userForAuthentication.Email);
                 if (user == null)
                 {
-                    return BadRequest("Such user does not exist");
+                    return BadRequest("Such user does not exists" );
                 }
             }
 
@@ -96,16 +93,20 @@ namespace HomeAccounting.WebApi.Controllers
         [HttpPost("ForgotPassword")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto forgotPasswordDto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest();
             var user = await _userManager.FindByEmailAsync(forgotPasswordDto.Email);
             if (user == null)
-                return BadRequest("Invalid Request");
+            {
+                user = await _userManager.FindByNameAsync(forgotPasswordDto.Email);
+                if (user == null)
+                {
+                    return BadRequest("Such user does not exists");
+                }
+            }
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var param = new Dictionary<string, string?>
             {
                 {"token", token },
-                {"email", forgotPasswordDto.Email }
+                {"email", user.Email }
             };
             var callback = QueryHelpers.AddQueryString(forgotPasswordDto.ClientURI, param);
             var textToSend = $"Dear User {user.UserName}, " + "\n" + "We got a request from you for reseting the password." + "\n" +
@@ -113,7 +114,7 @@ namespace HomeAccounting.WebApi.Controllers
             var message = new Message(new string[] { user.Email }, "Reseting password", textToSend);
             _emailSender.SendEmail(message);
 
-            return Ok(token);
+            return Ok(new ForgotPasswordResponseDto {IsPawwordReseted = true, ResetToken = token });
         }
 
         [HttpPost("ResetPassword")]
