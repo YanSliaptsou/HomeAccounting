@@ -4,6 +4,9 @@
         <div *ngIf="showError" class="alert alert-danger" role="alert">
             <span [innerHTML]="errorMessage"></span>
         </div>
+        <div *ngIf="showSuccess" class="alert alert-success" role="alert">
+            <span [innerHTML]="successMessage"></span>
+        </div>
         <form [formGroup]="registerForm" autocomplete="off" novalidate (ngSubmit)="registerUser(registerForm.value)">
             <div class="mb-3 row">
                 <label for="userName" class="col-form-label col-sm-2">User Name:</label>
@@ -47,7 +50,7 @@
                 <label for="mainCurrencyCode" class="col-form-label col-sm-2">Main currency:</label>
                 <div class="col-md-5">
                     <select class="form-control" id="mainCurrencyCode" formControlName="mainCurrencyCode">
-                        <option *ngFor="let currency of currencies" value="currency.id">{{currency.id +' '+currency.name}}</option>
+                        <option *ngFor="let currency of currencies" [value]="currency.id">{{currency.id +' '+currency.name}}</option>
                     </select>
                 </div>
                 <div class="col-md-5">

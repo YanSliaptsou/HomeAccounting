@@ -7,6 +7,7 @@ import { AuthenticationService } from 'src/app/shared/services/authentication.se
 import { CurrenciesService } from 'src/app/shared/services/currencies.service';
 import { ErrorHandlerService } from 'src/app/shared/services/error-handler.service';
 import { Currency } from 'src/app/_interfaces/currency';
+import { RegistrationResponseDto } from 'src/app/_interfaces/RegistrationResponseDto';
 import { UserForRegistrationDto } from 'src/app/_interfaces/UserForRegistrationDto';
 
 @Component({
@@ -18,7 +19,9 @@ export class RegisterUserComponent implements OnInit {
 
   registerForm : FormGroup;
   public errorMessage: string;
-  public showError: boolean;
+  public showError: boolean = false;
+  public successMessage: string;
+  public showSuccess: boolean = false;
   currencies: Currency[];
 
   constructor(private authService: AuthenticationService, 
@@ -63,16 +66,21 @@ export class RegisterUserComponent implements OnInit {
       email: formValues.email,
       password: formValues.password,
       confirmPassword: formValues.confirm,
-      mainCurrencyCode: formValues.mainCurrencyCode,
+      mainCurrencyId: formValues.mainCurrencyCode,
       clientURI: 'http://localhost:4200/authentication/emailconfirmation'
     };
 
     this.authService.registerUser("api/users-accounts/register", user)
-    .subscribe(response =>{
+    .subscribe((response : RegistrationResponseDto) =>{
+      console.log(response);
+      this.showSuccess = true;
+      this.successMessage = "User " + user.userName + " has been successfully registered." +
+      "See your email to confirm your account."
       this.router.navigate(["/authentication/login"])
     }, error => {
-      this.errorMessage = error;
+      console.log(error);
       this.showError = true;
+      this.errorMessage = error;
     })
 }
 }
