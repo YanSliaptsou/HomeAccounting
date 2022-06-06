@@ -1,6 +1,6 @@
 export interface UserForRegistrationDto {
     userName: string;
-    mainCurrencyCode: string;
+    mainCurrencyId: string;
     email: string;
     password: string;
     confirmPassword: string;
