@@ -10,7 +10,7 @@ namespace HomeAccounting.Domain.Repositories.Abstarct
 {
     public interface IExchangeRatesRepository
     {
-        Task<IEnumerable<ExchangeRatesViewDTO>> GetAllExchaneRates();
-        Task<IEnumerable<ExchangeRatesViewDTO>> GetConcreteCurrencyExchangeRate(string currencyCode);
+        Task<IEnumerable<ExchangeRate>> GetAllExchaneRates();
+        Task<IEnumerable<ExchangeRate>> GetConcreteCurrencyExchangeRate(string currencyCode);
     }
 }

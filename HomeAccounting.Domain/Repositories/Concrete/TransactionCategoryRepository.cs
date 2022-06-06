@@ -50,11 +50,6 @@ namespace HomeAccounting.Domain.Repositories.Concrete
                     transactionCategory.Name = createDto.Name;
                 }
 
-                if (createDto.Constraint != null)
-                {
-                    transactionCategory.Constraint = createDto.Constraint;
-                }
-
                 if (createDto.ParentTransactionCategoryId != null)
                 {
                     transactionCategory.ParentTransactionCategory = await _context.ParentTransactionCategories

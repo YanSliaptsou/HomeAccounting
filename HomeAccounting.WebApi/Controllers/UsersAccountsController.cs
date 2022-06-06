@@ -34,9 +34,6 @@ namespace HomeAccounting.WebApi.Controllers
         [HttpPost("Register")]
         public async Task<IActionResult> RegisterUser([FromBody] UserRegistrationRequestDTO userForRegistration)
         {
-            if (userForRegistration == null || !ModelState.IsValid)
-                return BadRequest();
-
             var user = _mapper.Map<AppUser>(userForRegistration);
             var result = await _userManager.CreateAsync(user, userForRegistration.Password);
             if (!result.Succeeded)
@@ -47,12 +44,7 @@ namespace HomeAccounting.WebApi.Controllers
             }
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var param = new Dictionary<string, string?>
-            {
-                {"token", token },
-                {"email", user.Email }
-            };
-            var callback = QueryHelpers.AddQueryString(userForRegistration.ClientURI, param);
+            var callback = userForRegistration.ClientURI + "?token=" + token + "&email=" + userForRegistration.Email;
             var textToSend = $"Dear User {user.UserName}, " + "\n" + "We got a request from you for confirming your email." + "\n" +
                 "Please, follow the next link to confirm your email:" + "\n" + callback;
             var message = new Message(new string[] { user.Email }, "Email Confirmation token", textToSend);
@@ -66,11 +58,19 @@ namespace HomeAccounting.WebApi.Controllers
         {
             var user = await _userManager.FindByEmailAsync(userForAuthentication.Email);
             if (user == null)
-                return BadRequest("Invalid Request");
+            {
+                user = await _userManager.FindByNameAsync(userForAuthentication.Email);
+                if (user == null)
+                {
+                    return BadRequest("Such user does not exists" );
+                }
+            }
+
+            if (!await _userManager.CheckPasswordAsync(user, userForAuthentication.Password))
+                return Unauthorized(new UserAuthenticationResponseDTO { ErrorMessage = "Invalid Password" });
+
             if (!await _userManager.IsEmailConfirmedAsync(user))
                 return Unauthorized(new UserAuthenticationResponseDTO { ErrorMessage = "Email is not confirmed" });
-            if (!await _userManager.CheckPasswordAsync(user, userForAuthentication.Password))
-                return Unauthorized(new UserAuthenticationResponseDTO { ErrorMessage = "Invalid Authentication" });
 
             var signingCredentials = _tokenService.GetSigningCredentials();
             var claims = _tokenService.GetClaims(user);
@@ -82,16 +82,20 @@ namespace HomeAccounting.WebApi.Controllers
         [HttpPost("ForgotPassword")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto forgotPasswordDto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest();
             var user = await _userManager.FindByEmailAsync(forgotPasswordDto.Email);
             if (user == null)
-                return BadRequest("Invalid Request");
+            {
+                user = await _userManager.FindByNameAsync(forgotPasswordDto.Email);
+                if (user == null)
+                {
+                    return BadRequest("Such user does not exists");
+                }
+            }
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var param = new Dictionary<string, string?>
             {
                 {"token", token },
-                {"email", forgotPasswordDto.Email }
+                {"email", user.Email }
             };
             var callback = QueryHelpers.AddQueryString(forgotPasswordDto.ClientURI, param);
             var textToSend = $"Dear User {user.UserName}, " + "\n" + "We got a request from you for reseting the password." + "\n" +
@@ -99,7 +103,7 @@ namespace HomeAccounting.WebApi.Controllers
             var message = new Message(new string[] { user.Email }, "Reseting password", textToSend);
             _emailSender.SendEmail(message);
 
-            return Ok(token);
+            return Ok(new ForgotPasswordResponseDto {IsPawwordReseted = true, ResetToken = token });
         }
 
         [HttpPost("ResetPassword")]
@@ -122,13 +126,20 @@ namespace HomeAccounting.WebApi.Controllers
         [HttpPost("EmailConfirmation")]
         public async Task<IActionResult> EmailConfirmation([FromQuery] string email, [FromQuery] string token)
         {
+            token = CorrectConfiramtionToken(token);
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
-                return BadRequest("Invalid Email Confirmation Request");
+                return BadRequest("Such user does not exist");
             var confirmResult = await _userManager.ConfirmEmailAsync(user, token);
             if (!confirmResult.Succeeded)
-                return BadRequest("Invalid Email Confirmation Request");
+                return BadRequest("Invalid token");
             return Ok();
+        }
+
+
+        public string CorrectConfiramtionToken(string token)
+        {
+            return token.Replace(" ", "+");
         }
     }
 }

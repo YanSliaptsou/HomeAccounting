@@ -9,7 +9,7 @@ namespace HomeAccounting.Domain.Models
 {
     public class AppUser : IdentityUser
     {
-        public string MainCurrencyCode { get; set; }
+        public string MainCurrencyId { get; set; }
         public Currency MainCurrency { get; set; }
     }
 }

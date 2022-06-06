@@ -24,15 +24,15 @@ namespace HomeAccounting.Domain.Repositories.Concrete
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<ExchangeRatesViewDTO>> GetAllExchaneRates()
+        public async Task<IEnumerable<ExchangeRate>> GetAllExchaneRates()
         {
-            return await _databaseContext.ExchangeRates.ProjectTo<ExchangeRatesViewDTO>(_mapper.ConfigurationProvider).ToListAsync();
+            return await _databaseContext.ExchangeRates.ToListAsync();
         }
 
-        public async Task<IEnumerable<ExchangeRatesViewDTO>> GetConcreteCurrencyExchangeRate(string currencyCode)
+        public async Task<IEnumerable<ExchangeRate>> GetConcreteCurrencyExchangeRate(string currencyCode)
         {
-            return await _databaseContext.ExchangeRates.Where(x => x.CurrencyFrom.Code == currencyCode || 
-                    x.CurrencyTo.Code == currencyCode).ProjectTo<ExchangeRatesViewDTO>(_mapper.ConfigurationProvider).ToListAsync();
+            return await _databaseContext.ExchangeRates.Where(x => x.CurrencyFrom.Id == currencyCode || 
+                    x.CurrencyTo.Id == currencyCode).ToListAsync();
         }
     }
 }

@@ -12,7 +12,7 @@ namespace HomeAccounting.WebApi.DTOs.RegistrationDTOs
 
         [Required(ErrorMessage = "Email is required.")]
         public string? Email { get; set; }
-        public string? MainCurrencyCode { get; set; }
+        public string? MainCurrencyId { get; set; }
 
         [Required(ErrorMessage = "Password is required")]
         public string? Password { get; set; }

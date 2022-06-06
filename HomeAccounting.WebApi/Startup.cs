@@ -69,6 +69,8 @@ namespace HomeAccounting.WebApi
             services.AddTransient<IExchangeRatesRepository, ExhangeRatesRepository>();
             services.AddTransient<ITransactionCategoryRepository, TransactionCategoryRepository>();
             services.AddTransient<ITokenService, TokenService>();
+            services.AddTransient<IExchangeRatesService, ExchangeRatesService>();
+            services.AddTransient<ICurrenciesRepository, CurrenciesRepository>();
             services.AddAutoMapper(typeof(CreateTransactionCategoryProfile).Assembly);
             services.AddAutoMapper(typeof(ViewTransactionCategoryProfile).Assembly);
             services.AddAutoMapper(typeof(ViewExchangeRatesProfile).Assembly);
@@ -77,7 +79,13 @@ namespace HomeAccounting.WebApi
 
             services.AddIdentity<AppUser, IdentityRole>(opt =>
             {
-                opt.User.RequireUniqueEmail = false;
+                opt.SignIn.RequireConfirmedEmail = true;
+                opt.Password.RequireDigit = true;
+                opt.Password.RequireLowercase = true;
+                opt.Password.RequireUppercase = true;
+                opt.Password.RequiredLength = 8;
+                opt.Password.RequireNonAlphanumeric = false;
+                opt.User.RequireUniqueEmail = true;
             })
                 .AddEntityFrameworkStores<DatabaseContext>()
                 .AddDefaultTokenProviders();
@@ -102,6 +110,8 @@ namespace HomeAccounting.WebApi
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 
             app.UseAuthentication();
 
