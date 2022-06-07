@@ -5,19 +5,17 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
-using HomeAccounting.Domain.Repositories.Abstarct;
-using HomeAccounting.Domain.Repositories.Concrete;
+using HomeAccounting.Domain.Repositories.Interfaces;
+using HomeAccounting.Domain.Repositories;
 using HomeAccounting.Domain.Db;
-using HomeAccounting.Domain.MappingProfiles;
 using HomeAccounting.Domain.Models;
 using Microsoft.AspNetCore.Identity;
-using HomeAccounting.WebApi.MappingProfiles;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using HomeAccounting.Infrastructure.Services.Abstract;
 using HomeAccounting.Infrastructure.Services.Concrete;
 using HomeAccounting.Infrastructure.Configurations;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace HomeAccounting.WebApi
 {
@@ -38,7 +36,6 @@ namespace HomeAccounting.WebApi
             services.AddAuthentication(opt =>
             {
                 opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
@@ -71,10 +68,9 @@ namespace HomeAccounting.WebApi
             services.AddTransient<ITokenService, TokenService>();
             services.AddTransient<IExchangeRatesService, ExchangeRatesService>();
             services.AddTransient<ICurrenciesRepository, CurrenciesRepository>();
-            services.AddAutoMapper(typeof(CreateTransactionCategoryProfile).Assembly);
-            services.AddAutoMapper(typeof(ViewTransactionCategoryProfile).Assembly);
-            services.AddAutoMapper(typeof(ViewExchangeRatesProfile).Assembly);
-            services.AddAutoMapper(typeof(UsersAccountsProfile).Assembly);
+            services.AddTransient<IParentTransactionCategoryRepository, ParentTransactionCategoryRepository>();
+            services.AddTransient<IParentCategoryService, ParentCategoryService>();
+            services.AddAutoMapper(typeof(MappingProfiles.MappingProfiles).Assembly);
             services.AddCors();
 
             services.AddIdentity<AppUser, IdentityRole>(opt =>
@@ -87,8 +83,10 @@ namespace HomeAccounting.WebApi
                 opt.Password.RequireNonAlphanumeric = false;
                 opt.User.RequireUniqueEmail = true;
             })
-                .AddEntityFrameworkStores<DatabaseContext>()
-                .AddDefaultTokenProviders();
+                .AddEntityFrameworkStores<DatabaseContext>();
+                
+
+
 
             var emailConfig = Configuration
                 .GetSection("EmailConfiguration")

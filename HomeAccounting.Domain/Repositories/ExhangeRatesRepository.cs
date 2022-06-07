@@ -1,9 +1,8 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using HomeAccounting.Domain.Db;
-using HomeAccounting.Domain.DTOs.ViewDTOs;
 using HomeAccounting.Domain.Models;
-using HomeAccounting.Domain.Repositories.Abstarct;
+using HomeAccounting.Domain.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -11,17 +10,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HomeAccounting.Domain.Repositories.Concrete
+namespace HomeAccounting.Domain.Repositories
 {
     public class ExhangeRatesRepository : IExchangeRatesRepository
     {
         private readonly DatabaseContext _databaseContext;
-        private readonly IMapper _mapper;
 
         public ExhangeRatesRepository(DatabaseContext databaseContext, IMapper mapper)
         {
             _databaseContext = databaseContext;
-            _mapper = mapper;
         }
 
         public async Task<IEnumerable<ExchangeRate>> GetAllExchaneRates()

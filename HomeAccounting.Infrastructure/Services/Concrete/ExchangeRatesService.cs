@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using HomeAccounting.Domain.Repositories.Abstarct;
+using HomeAccounting.Domain.Repositories.Interfaces;
 
 namespace HomeAccounting.Infrastructure.Services.Concrete
 {

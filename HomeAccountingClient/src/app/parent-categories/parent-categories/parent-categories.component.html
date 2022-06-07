@@ -1,0 +1,72 @@
+<div class="card">
+    <div class="card-body">
+        <h1 class="card-title">Add Category</h1>
+        <div *ngIf="showError" class="alert alert-danger" role="alert">
+            <span [innerHTML]="errorMessage"></span>
+        </div>
+        <div *ngIf="showSuccess" class="alert alert-success" role="alert">
+            <span [innerHTML]="successMessage"></span>
+        </div>
+        <form [formGroup]="parentCategoryForm" autocomplete="off" novalidate >
+            <div class="mb-3 row">
+                <label for="username" class="col-form-label col-sm-2">Category name:</label>
+                <div class="col-md-5">
+                    <input type="text" [(ngModel)]="parentCategotyName" id="categoryName" formControlName="categoryName" class="form-control" />
+                </div>
+                <div class="col-md-5">
+                    <em *ngIf="validateControl('categoryName') && hasError('categoryName', 'required')">Category name is required</em>
+                </div>
+            </div>
+
+              <br>
+              <div class="mb-3 row">
+                <div class="col-md-2">
+                  <button type="submit" (click)="addParentCategory(parentCategoryForm.value)" class=" btn btn-success" [disabled]="!parentCategoryForm.valid || !isAdding">Add parent category</button>
+                </div>
+                <div class="col-md-2">
+                  <button type="submit" (click)="editParentCategory(parentCategoryForm.value, parentCategoryReceive.id)" class=" btn btn-warning" [disabled]="!parentCategoryForm.valid || !isEditing">Edit parent category</button>
+                </div>
+              </div>
+        </form>
+    </div>
+  </div>
+
+  <br>
+  <h2 style="position: center;" class="card-title">Your parent categories</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Id</th>
+        <th scope="col">Name</th>
+        <th scope="col">Subcategories</th>
+        <th scope="col">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let category of parentCategories">
+        <th scope="row">{{category.id}}</th>
+        <td>{{category.name}}</td>
+        <td></td>
+        <td><div class="mb-3 row">
+            <div class="col-md-2 ">
+              <button type="submit" (click)="getParentCategory(parentCategoryForm.value, category.id)"  class=" btn btn-primary">Edit</button>
+            </div>
+            <div class="col-md-2">
+              <button type="submit" (click)="openModal(template, category.id)"  class=" btn btn-danger">Delete</button>
+            </div>
+            <div class="col-md-2">
+                <button type="submit"  class=" btn btn-success">Add subcategories</button>
+              </div>
+          </div></td>
+      </tr>
+    </tbody>
+  </table>
+
+
+  <ng-template #template>
+    <div class="modal-body text-center">
+      <p>Do you want to delete category {{parentCategoryReceive.name}}?</p>
+      <button type="button" class="btn btn-default" (click)="deleteParentCategory(parentCategoryReceive.id)" >Yes</button>
+      <button type="button" class="btn btn-primary" (click)="decline()" >No</button>
+    </div>
+  </ng-template>

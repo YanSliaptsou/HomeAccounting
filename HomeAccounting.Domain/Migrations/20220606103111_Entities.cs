@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace HomeAccounting.Domain.Migrations
 {
-    public partial class Updatedentities : Migration
+    public partial class Entities : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -207,8 +207,7 @@ namespace HomeAccounting.Domain.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    ParentTransactionCategoryId = table.Column<int>(type: "int", nullable: true)
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -217,12 +216,6 @@ namespace HomeAccounting.Domain.Migrations
                         name: "FK_ParentTransactionCategories_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_ParentTransactionCategories_ParentTransactionCategories_ParentTransactionCategoryId",
-                        column: x => x.ParentTransactionCategoryId,
-                        principalTable: "ParentTransactionCategories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -263,7 +256,6 @@ namespace HomeAccounting.Domain.Migrations
                     TransactionCategoryId = table.Column<int>(type: "int", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CurrencyId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Constraint = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     AppUserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
@@ -324,6 +316,27 @@ namespace HomeAccounting.Domain.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OutcomeLimits",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    AccountId = table.Column<int>(type: "int", nullable: false),
+                    Limit = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    LimitPeriod = table.Column<byte>(type: "tinyint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OutcomeLimits", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OutcomeLimits_Accounts_AccountId",
+                        column: x => x.AccountId,
+                        principalTable: "Accounts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -411,9 +424,9 @@ namespace HomeAccounting.Domain.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ParentTransactionCategories_ParentTransactionCategoryId",
-                table: "ParentTransactionCategories",
-                column: "ParentTransactionCategoryId");
+                name: "IX_OutcomeLimits_AccountId",
+                table: "OutcomeLimits",
+                column: "AccountId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ParentTransactionCategories_UserId",
@@ -453,6 +466,9 @@ namespace HomeAccounting.Domain.Migrations
 
             migrationBuilder.DropTable(
                 name: "Ledgers");
+
+            migrationBuilder.DropTable(
+                name: "OutcomeLimits");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

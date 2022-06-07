@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HomeAccounting.Domain.Repositories.Abstarct
+namespace HomeAccounting.Domain.Repositories.Interfaces
 {
     public interface ICurrenciesRepository
     {
