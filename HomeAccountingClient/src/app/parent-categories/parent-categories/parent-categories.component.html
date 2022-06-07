@@ -29,7 +29,7 @@
               </div>
         </form>
     </div>
-  </div>
+    </div>
 
   <br>
   <h2 style="position: center;" class="card-title">Your parent categories</h2>
@@ -52,10 +52,10 @@
               <button type="submit" (click)="getParentCategory(parentCategoryForm.value, category.id)"  class=" btn btn-primary">Edit</button>
             </div>
             <div class="col-md-2">
-              <button type="submit" (click)="openModal(template, category.id)"  class=" btn btn-danger">Delete</button>
+              <button type="submit" (click)="openModalOnDelete(template, category.id)"  class=" btn btn-danger">Delete</button>
             </div>
             <div class="col-md-2">
-                <button type="submit"  class=" btn btn-success">Add subcategories</button>
+                <button type="submit" (click)="lgModal.show(); getParentCategory(null, category.id)"  class=" btn btn-success">Subcategories</button>
               </div>
           </div></td>
       </tr>
@@ -70,3 +70,112 @@
       <button type="button" class="btn btn-primary" (click)="decline()" >No</button>
     </div>
   </ng-template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div bsModal #lgModal="bs-modal" class="modal fade" tabindex="-1"
+  role="dialog" aria-labelledby="dialog-sizes-name1">
+<div class="modal-dialog modal-lg">
+ <div class="modal-content">
+   <div class="modal-header">
+     <h4 id="dialog-sizes-name1" class="modal-title pull-left">Add Subcategory to your category <b><i><u>{{parentCategoryReceive.name}}</u></i></b></h4>
+     <button type="button" class="btn-close close pull-right" (click)="lgModal.hide()" aria-label="Close">
+       <span aria-hidden="true" class="visually-hidden">&times;</span>
+     </button>
+   </div>
+   <div class="modal-body">
+    <div class="card-body">
+      <div *ngIf="showErrorModal" class="alert alert-danger" role="alert">
+          <span [innerHTML]="errorMessageModal"></span>
+      </div>
+      <div *ngIf="showSuccessModal" class="alert alert-success" role="alert">
+          <span [innerHTML]="successMessageModal"></span>
+      </div>
+      <form [formGroup]="categoryForm" autocomplete="off" novalidate >
+          <div class="mb-3 row">
+              <label for="username" class="col-form-label col-sm-2">Category name:</label>
+              <div class="col-md-5">
+                  <input type="text" [(ngModel)]="categoryName" id="subcategoryName" formControlName="subcategoryName" class="form-control" />
+              </div>
+              <div class="col-md-5">
+                  <em *ngIf="validateControlModal('subcategoryName') && hasErrorModal('subcategoryName', 'required')">Subategory name is required</em>
+              </div>
+          </div>
+
+            <br>
+            <div class="mb-3 row">
+              <div>
+                <button type="submit" (click)="addCategory(categoryForm.value)" class=" btn btn-success" [disabled]="!categoryForm.valid || !isAddingModal">Add subcategory</button>
+              </div>
+              <div style="margin-left: 5px;">
+                <button type="submit" (click)="editCategory(categoryForm.value, categoryReceive.id)" class=" btn btn-warning" [disabled]="!categoryForm.valid || !isEditingModal">Edit subcategory</button>
+              </div>
+            </div>
+      </form>
+  </div>
+  <br>
+  <h2 style="position: center;" class="card-title">Your subcategories</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Id</th>
+        <th scope="col">Name</th>
+        <th scope="col">Parent Category</th>
+        <th scope="col">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let subcategory of categories">
+        <th scope="row">{{subcategory.id}}</th>
+        <td>{{subcategory.name}}</td>
+        <td></td>
+        <td><div class="mb-3 row" >
+            <div style="margin-left: 30px; margin-top: 5px;">
+              <button type="submit" (click)="getCategory(categoryForm.value, subcategory.id)"  class=" btn btn-primary">Edit</button>
+            </div>
+            <div style="margin-left: 30px; margin-top: 5px;">
+              <button type="submit" (click)="openModalOnDeleteSubcat(templateSub, subcategory.id)"  class=" btn btn-danger">Delete</button>
+            </div>
+            <div style="margin-left: 30px; margin-top: 5px;">
+                <button type="submit" class=" btn btn-success">Set as subcategory</button>
+              </div>
+          </div></td>
+      </tr>
+    </tbody>
+  </table>
+   </div>
+ </div>
+</div>
+</div>
+
+<ng-template #templateSub>
+  <div class="modal-body text-center">
+    <p>Do you want to delete sucategory {{categoryReceive.name}}?</p>
+    <button type="button" class="btn btn-default" (click)="deleteCategory(categoryReceive.id)" >Yes</button>
+    <button type="button" class="btn btn-primary" (click)="declineModalRef()" >No</button>
+  </div>
+</ng-template>

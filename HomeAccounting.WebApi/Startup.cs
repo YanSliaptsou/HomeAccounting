@@ -70,6 +70,7 @@ namespace HomeAccounting.WebApi
             services.AddTransient<ICurrenciesRepository, CurrenciesRepository>();
             services.AddTransient<IParentTransactionCategoryRepository, ParentTransactionCategoryRepository>();
             services.AddTransient<IParentCategoryService, ParentCategoryService>();
+            services.AddTransient<ICategoryService, CategoryService>();
             services.AddAutoMapper(typeof(MappingProfiles.MappingProfiles).Assembly);
             services.AddCors();
 

@@ -14,7 +14,7 @@ namespace HomeAccounting.Infrastructure.Services.Concrete
 
         public ParentCategoryService(IParentTransactionCategoryRepository parentTransactionCategoryRepository)
         {
-            this._parentTransactionCategoryRepository = parentTransactionCategoryRepository;
+            _parentTransactionCategoryRepository = parentTransactionCategoryRepository;
         }
 
         public async Task<bool> IsSuchParentCategoryExists(string userId, string parentCategoryName)
