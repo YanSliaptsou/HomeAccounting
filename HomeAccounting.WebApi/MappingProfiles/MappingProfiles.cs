@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using HomeAccounting.Domain.Models;
-using HomeAccounting.WebApi.DTOs.ParentCategoriesDTO;
+using HomeAccounting.WebApi.DTOs;
 using HomeAccounting.WebApi.DTOs.RegistrationDTOs;
 
 
@@ -11,6 +11,8 @@ namespace HomeAccounting.WebApi.MappingProfiles
         public MappingProfiles()
         {
             CreateMap<UserRegistrationRequestDTO, AppUser>();
+            /*CreateMap<TransactionCategory, TransactionCategoryViewDto>()
+                .ForMember(x => x.ParentTransactionCategoryName, opt => opt.MapFrom(x => x.ParentTransactionCategory.Name));*/
         }
     }
 }

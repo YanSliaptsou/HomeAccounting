@@ -18,7 +18,12 @@ export class ParentCategoriesComponent implements OnInit {
   parentCategoryForm: FormGroup;
   parentCategories : ParentCategoryReceive[];
   parentCategory : ParentCategorySendDto = null;
-  parentCategoryReceive : ParentCategoryReceive;
+  parentCategoryReceive : ParentCategoryReceive = {
+    id : null,
+    name : null,
+    userId : null,
+    subcategories : null
+  };
   parentCategotyName: string = "";
   isAdding = true;
   isEditing = false;
@@ -33,6 +38,13 @@ export class ParentCategoriesComponent implements OnInit {
   categories: CategoryReceive[];
   category: CategorySendDto = null;
   categoryReceive : CategoryReceive;
+  parentCategoryReceiveForName : ParentCategoryReceive = {
+    id : null,
+    name : null,
+    userId : null,
+    subcategories : null
+  };
+  subcategoriesForCategory : CategoryReceive[];
   categoryName: string = "";
   isAddingModal = true;
   isEditingModal = false;
@@ -87,6 +99,10 @@ export class ParentCategoriesComponent implements OnInit {
     this.parentCategoryAddEditService.getParentCategories("api/parent-categories")
         .subscribe((response: ParentCategoryReceive[]) => {
           this.parentCategories = response;
+          console.log(this.parentCategories);
+          for(let parent of this.parentCategories){
+            this.loadSubcategoriesByParentCategory(parent);
+          }
         })
   }
 
@@ -94,6 +110,30 @@ export class ParentCategoriesComponent implements OnInit {
     this.categoryService.getCategories("api/categories/list-by-user")
     .subscribe((response : CategoryReceive[]) => {
       this.categories = response;
+      for(var category of this.categories){
+        if (category.parentTransactionCategoryId !== null){
+        this.getParentCategoryForName(category.parentTransactionCategoryId, category);
+        }
+      }
+    })
+  }
+
+  loadSubcategoriesByParentCategory(parent: ParentCategoryReceive){
+    parent.subcategories = [];
+    this.categoryService.getCategories("api/categories/list-by-parent-category/" + parent.id)
+      .subscribe((response : CategoryReceive[]) => {
+        this.subcategoriesForCategory = response;
+        for (let nm of this.subcategoriesForCategory){
+          parent.subcategories.push(nm.name);
+        }
+      })
+  }
+
+  getParentCategoryForName(id : number, subcat : CategoryReceive){
+    return this.parentCategoryAddEditService.getConcreteParentCategory("api/parent-categories/" + id)
+    .subscribe((response : ParentCategoryReceive) => {
+      this.parentCategoryReceiveForName = response;
+      subcat.parentTransactionCategoryName = response.name;
     })
   }
 
@@ -158,7 +198,8 @@ export class ParentCategoriesComponent implements OnInit {
   addCategory(categoryForm : any){
     const subCatForm = {... categoryForm}
     const subCategory : CategorySendDto = {
-      name : subCatForm.subcategoryName
+      name : subCatForm.subcategoryName,
+      parentTransactionCategoryId : this.parentCategoryReceive.id
     }
     this.categoryService.addCategory("api/categories", subCategory)
     .subscribe((response : any) => {
@@ -193,24 +234,35 @@ export class ParentCategoriesComponent implements OnInit {
     })
   }
 
-  editCategory(categoryForm : any, id: number){
-    this.isEditingModal = false;
-    this.isAddingModal = true;
-    const catForm = {... categoryForm}
-    const subCategory : CategorySendDto = {
-      name : catForm.subcategoryName
+  editCategory(categoryForm : any, id: number, nameC : string = null){
+    var subCategory : CategorySendDto;
+    if (categoryForm == null){
+      subCategory = {
+        parentTransactionCategoryId : this.parentCategoryReceive.id,
+      }
     }
-    this.parentCategoryAddEditService.editParentCategory("api/categories/" + id, subCategory)
+    else{
+      this.isEditingModal = false;
+      this.isAddingModal = true;
+      const catForm = {... categoryForm}
+      subCategory = {
+        name : catForm.subcategoryName
+      }
+      nameC = subCategory.name;
+    }
+    this.categoryService.editCategory("api/categories/" + id, subCategory)
     .subscribe((resp : any) => {
       this.showSuccessModal = true;
       this.showErrorModal = false;
-      this.successMessageModal = "Subategory " + subCategory.name + " has been edited successfuly!"
+      this.successMessageModal = "Subategory " + nameC + " has been edited successfuly!"
       this.loadSubcategories();
     }, error => {
       this.showErrorModal = true;
       this.showSuccessModal = false;
       this.errorMessageModal = error;
     })
+
+    this.loadParentCategories();
   }
 
   deleteParentCategory(id : number){

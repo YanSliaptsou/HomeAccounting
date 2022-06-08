@@ -1,4 +1,4 @@
 export interface CategorySendDto{
-    name : string;
-    parentCategoryId?: number;
+    name? : string;
+    parentTransactionCategoryId?: number;
 }

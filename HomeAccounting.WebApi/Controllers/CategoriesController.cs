@@ -1,4 +1,5 @@
-﻿using HomeAccounting.Domain.Models;
+﻿using AutoMapper;
+using HomeAccounting.Domain.Models;
 using HomeAccounting.Domain.Repositories.Interfaces;
 using HomeAccounting.Infrastructure.Extensions;
 using HomeAccounting.Infrastructure.Services.Abstract;
@@ -17,7 +18,7 @@ namespace HomeAccounting.WebApi.Controllers
     public class CategoriesController : BaseApiController
     {
         private readonly ITransactionCategoryRepository _transactionCategoryRepository;
-        private readonly ICategoryService _categoryService; 
+        private readonly ICategoryService _categoryService;
 
         public CategoriesController(ITransactionCategoryRepository transactionCategoryRepository, ICategoryService categoryService)
         {

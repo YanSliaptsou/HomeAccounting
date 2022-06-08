@@ -57,12 +57,12 @@ namespace HomeAccounting.Domain.Repositories
             var transactionCategory = await _context.TransactionCategories.FirstOrDefaultAsync(x => x.Id == transactionCategoryId);
             if (transactionCategory != null)  
             {
-                if (transactionCategory.Name != null)
+                if (transactionCategoryEditable.Name != null)
                 {
                     transactionCategory.Name = transactionCategoryEditable.Name;
                 }
 
-                if (transactionCategory.ParentTransactionCategoryId != null)
+                if (transactionCategoryEditable.ParentTransactionCategoryId != null)
                 {
                     transactionCategory.ParentTransactionCategoryId = transactionCategoryEditable.ParentTransactionCategoryId;
                 }

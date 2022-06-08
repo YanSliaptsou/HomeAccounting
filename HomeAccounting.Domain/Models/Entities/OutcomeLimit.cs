@@ -15,6 +15,7 @@ namespace HomeAccounting.Domain.Models.Entities
         public Account Account { get; set; }
         public int AccountId { get; set; }
         public decimal Limit { get; set; }
-        public OutcomesLimitsPeriodsEnum LimitPeriod { get; set; }
+        public DateTime LimitFrom { get; set; }
+        public DateTime LimitTo { get; set; }
     }
 }
