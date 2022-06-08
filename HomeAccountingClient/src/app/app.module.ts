@@ -18,6 +18,8 @@ import { ParentCategoriesComponent } from './parent-categories/parent-categories
 import { ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ModalModule } from 'ngx-bootstrap/modal';
+import { TabsModule } from 'ngx-bootstrap/tabs'
+import { AccountsComponent } from './accounts/accounts.component';
 
 export function tokenGetter() {
   return localStorage.getItem("token");
@@ -31,6 +33,7 @@ export function tokenGetter() {
     HomeComponent,
     NotfoundComponent,
     ParentCategoriesComponent,
+    AccountsComponent,
   ],
   imports: [
     JwtModule.forRoot({
@@ -45,11 +48,13 @@ export function tokenGetter() {
     HttpClientModule,
     ReactiveFormsModule,
     ModalModule.forRoot(),
+    TabsModule.forRoot(),
     RouterModule.forRoot([
       { path: 'home', component: HomeComponent, canActivate:[AuthGuard] },
       { path: '404', component: NotfoundComponent},
       { path: 'authentication', loadChildren: () => import('./authentification/authentification.module').then(m => m.AuthentificationModule) },
       { path: 'parent-categories', component: ParentCategoriesComponent, canActivate: [AuthGuard]},
+      { path: 'accounts', component: AccountsComponent, canActivate: [AuthGuard]},
       { path: '', redirectTo: '/home', pathMatch: 'full' },
       { path: '**', redirectTo: '/404', pathMatch: 'full'}
     ]),

@@ -14,6 +14,7 @@ namespace HomeAccounting.Domain.Models.Entities
         public TransactionCategory TransactionCategory { get; set; }
         public int? TransactionCategoryId { get; set; }
         public string Name { get; set; }
+        public string Type { get; set; }
         public Currency Сurrency { get; set; }
         public string CurrencyId { get; set; }
         public AppUser AppUser { get; set; }

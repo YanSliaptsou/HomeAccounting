@@ -11,8 +11,6 @@ namespace HomeAccounting.WebApi.MappingProfiles
         public MappingProfiles()
         {
             CreateMap<UserRegistrationRequestDTO, AppUser>();
-            /*CreateMap<TransactionCategory, TransactionCategoryViewDto>()
-                .ForMember(x => x.ParentTransactionCategoryName, opt => opt.MapFrom(x => x.ParentTransactionCategory.Name));*/
         }
     }
 }

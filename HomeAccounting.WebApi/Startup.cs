@@ -71,6 +71,8 @@ namespace HomeAccounting.WebApi
             services.AddTransient<IParentTransactionCategoryRepository, ParentTransactionCategoryRepository>();
             services.AddTransient<IParentCategoryService, ParentCategoryService>();
             services.AddTransient<ICategoryService, CategoryService>();
+            services.AddTransient<IAccountRepository, AccountRepository>();
+            services.AddTransient<IAccountService, AccountService>();
             services.AddAutoMapper(typeof(MappingProfiles.MappingProfiles).Assembly);
             services.AddCors();
 

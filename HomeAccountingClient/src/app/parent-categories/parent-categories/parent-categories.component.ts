@@ -187,6 +187,7 @@ export class ParentCategoriesComponent implements OnInit {
       this.showSuccess = true;
       this.showError = false;
       this.successMessage = "Category " + parentCategory.name + " has been added successfuly!"
+      this.loadSubcategories();
       this.loadParentCategories();
     }, error => {
       this.showError = true;
@@ -207,6 +208,7 @@ export class ParentCategoriesComponent implements OnInit {
       this.showErrorModal = false;
       this.successMessageModal = "Subategory " + subCategory.name + " has been added successfuly!"
       this.loadSubcategories();
+      this.loadParentCategories();
     }, error => {
       this.showErrorModal = true;
       this.showSuccessModal = false;
@@ -226,6 +228,7 @@ export class ParentCategoriesComponent implements OnInit {
       this.showSuccess = true;
       this.showError = false;
       this.successMessage = "Category " + parentCategory.name + " has been edited successfuly!"
+      this.loadSubcategories();
       this.loadParentCategories();
     }, error => {
       this.showError = true;
@@ -256,13 +259,12 @@ export class ParentCategoriesComponent implements OnInit {
       this.showErrorModal = false;
       this.successMessageModal = "Subategory " + nameC + " has been edited successfuly!"
       this.loadSubcategories();
+      this.loadParentCategories();
     }, error => {
       this.showErrorModal = true;
       this.showSuccessModal = false;
       this.errorMessageModal = error;
     })
-
-    this.loadParentCategories();
   }
 
   deleteParentCategory(id : number){
@@ -272,6 +274,7 @@ export class ParentCategoriesComponent implements OnInit {
           this.showSuccess = true;
           this.showError = false;
           this.successMessage = "Category nmb. " + id + " has been deleted successfuly!"
+          this.loadSubcategories();
           this.loadParentCategories();
         }, error => {
           this.showError = true;
@@ -294,7 +297,8 @@ export class ParentCategoriesComponent implements OnInit {
         this.showSuccessModal = false;
         this.errorMessageModal = error;
         })
-
+        this.loadSubcategories();
+        this.loadParentCategories();
         this.modalRefOnAddingSubcategories?.hide();
   }
 
