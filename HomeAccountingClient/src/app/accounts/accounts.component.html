@@ -1,4 +1,106 @@
-<tabset [justified]="true">
-    <tab heading="Static title" []>Static content</tab>
-    <tab heading="Staic title 2" >Static content 2</tab>
-  </tabset>
+<div class="card">
+  <div class="card-body">
+      <h1 class="card-title">Add Account</h1>
+      <div *ngIf="showError" class="alert alert-danger" role="alert">
+        <span [innerHTML]="errorMessage"></span>
+    </div>
+    <div *ngIf="showSuccess" class="alert alert-success" role="alert">
+        <span [innerHTML]="successMessage"></span>
+    </div>
+      <form [formGroup]="accountForm" autocomplete="off" novalidate>
+        <div class="mb-3 row">
+          <label for="type" class="col-form-label col-sm-2">Account type:</label>
+          <div class="col-md-5">
+              <select [(ngModel)]="currentType" class="form-control" id="type" formControlName="type">
+                  <option (click)="updateForm('income')">Income</option>
+                  <option (click)="updateForm('outcome')">Outcome</option>
+              </select>
+          </div>
+          <div class="col-md-5">
+            <em style="color: red;" *ngIf="validateControl('type') && hasError('type','required')">Account type is required</em>
+          </div>
+      </div>
+      <div class="mb-3 row">
+        <label for="currency" class="col-form-label col-sm-2">Account currency:</label>
+        <div class="col-md-5">
+            <select [(ngModel)]="currentCurrency" class="form-control" id="currency" formControlName="currency">
+                <option *ngFor="let cur of currencies" [value]="cur.id">{{cur.id}}</option>
+            </select>
+        </div>
+        <div class="col-md-5">
+            <em style="color: red;" *ngIf="validateControl('currency') && hasError('currency','required')">Currency is required</em>
+        </div>
+      </div>
+      <div class="mb-3 row">
+        <label for="transactionCategory" class="col-form-label col-sm-2">Category:</label>
+        <div class="col-md-5">
+            <select [(ngModel)]="currentCategory" class="form-control" id="transactionCategory" formControlName="transactionCategory">
+                <option *ngFor="let category of categories" [value]="category.id">{{category.id +' '+category.name}}</option>
+            </select>
+        </div>
+        <div class="col-md-5">
+            <em style="color: red;" *ngIf="validateControl('transactionCategory') && hasError('transactionCategory','required')">Category is required</em>
+        </div>
+      </div>
+      <div class="mb-3 row">
+        <label for="name" class="col-form-label col-sm-2">Account name:</label>
+        <div class="col-md-5">
+            <input [(ngModel)]="currentAccountName"  type="text" id="name" formControlName="name" class="form-control" />
+        </div>
+        <div class="col-md-5">
+            <em style="color: red;" *ngIf="validateControl('name') && hasError('name', 'required')">Account name is required</em>
+        </div>
+        </div>
+        <br>
+            <div class="mb-3 row">
+                <div class="col-md-2">          
+                    <button type="submit" (click)="addAccount(this.accountForm.value)" class="btn btn-info" [disabled]="!accountForm.valid || !isAdding">Add account</button>
+                </div>
+                <div class="col-md-2">
+                  <button type="submit" (click)="editAccount(this.accountForm.value, currentAccount.id)" [disabled]="!accountForm.valid || !isEditing" class=" btn btn-warning">Edit account</button>
+                </div>
+            </div>
+      </form>
+  </div>
+</div>
+
+<br>
+<div class="ml-2  mr-2 row">
+  <h2 style="position: center;" class="card-title">Your accounts:</h2>
+  <select class="form-control" id="type">
+    <option (click)="loadAccounts('All')">All</option>
+    <option (click)="loadAccounts('Income')">Income</option>
+    <option (click)="loadAccounts('Outcome')">Outcome</option>
+</select>
+</div>
+
+<table class="table mt-2">
+  <thead>
+    <tr>
+      <th scope="col">Id</th>
+      <th scope="col">Name</th>
+      <th scope="col">Limits</th>
+      <th scope="col">Currency</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let account of accounts">
+      <th scope="row">{{account.id}}</th>
+      <td>{{account.name}}</td>
+      <td></td>
+      <td>{{account.currencyId}}</td>
+      <td><div class="mb-3 row" >
+        <div style="margin-left: 30px; margin-top: 5px;">
+          <button type="submit" (click)="getConcreteAccountToEdit(account.id)" class=" btn btn-primary">Edit</button>
+        </div>
+        <div style="margin-left: 30px; margin-top: 5px;">
+          <button type="submit" (click)="deleteAccount(account.id)" class=" btn btn-danger">Delete</button>
+        </div>
+        <div *ngIf="account.type === 'Outcome'" style="margin-left: 30px; margin-top: 5px;">
+            <button type="submit" class=" btn btn-success">Set constaraints</button>
+          </div>
+      </div></td>
+    </tr>
+  </tbody>
+</table>

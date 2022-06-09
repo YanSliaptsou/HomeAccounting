@@ -79,6 +79,11 @@ namespace HomeAccounting.Domain.Repositories
 
         public async Task<IEnumerable<Account>> GetAllAcountsByType(string userId, string type)
         {
+            if (type == "All")
+            {
+                return await _databaseContext.Accounts.Where(x => x.AppUserId == userId).ToListAsync();
+            }
+
             return await _databaseContext.Accounts.Where(x => x.AppUserId == userId && x.Type == type).ToListAsync();
         }
     }

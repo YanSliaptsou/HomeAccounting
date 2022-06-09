@@ -22,7 +22,7 @@ namespace HomeAccounting.Infrastructure.Services.Concrete
 
         public async Task<string> CreateNameForOutcome(Account account, int categoryId)
         {
-            if (account.Type == "outcome")
+            if (account.Type == "Outcome")
             {
                 var subcategory = _transactionCategoryRepository.GetConcreteTransactionCategory(categoryId).Result;
                 string subcategoryName = subcategory.Name;

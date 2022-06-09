@@ -25,15 +25,8 @@ namespace HomeAccounting.WebApi.Controllers
             _accountService = accountService;
             _accountRepository = accountRepository;
         }
-        
-        [Route("list-by-user")]
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Account>>> GetAllAccountByUser()
-        {
-            return Ok(await _accountRepository.GetAllAccountByUser(User.GetUserId()));
-        }
 
-        [Route("list-by-type/{type}")]
+        [Route("{type}")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Account>>> GetAllAcountsByType(string type)
         {
@@ -64,11 +57,6 @@ namespace HomeAccounting.WebApi.Controllers
             }
 
             account.AppUserId = userId;
-
-            if (await _accountService.CreateNameForOutcome(account, (int)account.TransactionCategoryId) != string.Empty)
-            {
-                account.Name = await _accountService.CreateNameForOutcome(account, (int)account.TransactionCategoryId);
-            }
 
             await _accountRepository.CreateAccount(account);
             return Ok(account);

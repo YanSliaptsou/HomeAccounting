@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { AccountEditDto } from 'src/app/_interfaces/Account/AccountEditDto';
 import { AccountReceiveDto } from 'src/app/_interfaces/Account/AccountReceiveDto';
 import { AccountSendDto } from 'src/app/_interfaces/Account/AccountSendDto';
 import { environment } from 'src/environments/environment';
@@ -24,7 +25,7 @@ export class AccountService {
     return this.http.post<any>(this.createCompleteRoute(route, this.baseUrl), account);
   }
 
-  editAccount(route: string, account : AccountSendDto){
+  editAccount(route: string, account : AccountEditDto){
     return this.http.put<any>(this.createCompleteRoute(route, this.baseUrl), account);
   }
 

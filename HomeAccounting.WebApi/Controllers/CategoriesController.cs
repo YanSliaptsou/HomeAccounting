@@ -32,6 +32,14 @@ namespace HomeAccounting.WebApi.Controllers
             return Ok(await _transactionCategoryRepository.GetAllCategories());
         }
 
+        [Route("list-except-repeated")]
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<TransactionCategory>>> ExceptTransactionCategoriesLocatedInAccounts()
+        {
+            var categories = await _categoryService.ExceptTransactionCategoriesLocatedInAccounts(User.GetUserId());
+            return Ok(categories);
+        }
+
         [Route("list-by-parent-category/{parentCategoryId}")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TransactionCategory>>> GetTransactionCategoriesByParentCategory(int parentCategoryId)
