@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { TabsetConfig } from 'ngx-bootstrap/tabs';
 import { AccountService } from '../shared/services/account.service';
 import { CategoryService } from '../shared/services/category.service';
@@ -19,7 +20,7 @@ import { Currency } from '../_interfaces/currency';
 export class AccountsComponent implements OnInit {
 
   constructor(private currencyService : CurrenciesService, private categoryService : CategoryService,
-    private accountService : AccountService) { }
+    private accountService : AccountService, private modalService: BsModalService) { }
 
     isAdding = true;
     isEditing = false;
@@ -40,6 +41,8 @@ export class AccountsComponent implements OnInit {
     currentCategory : number;
     currentAccountName : string;
 
+    modalRef?: BsModalRef;
+
   ngOnInit(): void {
     this.loadCategories();
     this.loadCurrencies();
@@ -56,6 +59,11 @@ export class AccountsComponent implements OnInit {
     this.accountForm.get('transactionCategory').disable();
     this.accountForm.get('name').disable();
 
+  }
+
+  openModalOnDelete(template: TemplateRef<any>, id : number) {
+    this.modalRef = this.modalService.show(template, {class: 'modal-lg'});
+    this.getConcreteAccount(id);
   }
 
   loadCurrencies(){
@@ -104,8 +112,13 @@ export class AccountsComponent implements OnInit {
         this.currentCategory = this.currentAccount.transactionCategoryId
         this.currentAccountName = this.currentAccount.name
       })
-    
+  }
 
+  getConcreteAccount(id : number){
+    this.accountService.getConcreteAccount("api/accounts/account-by-id/" + id)
+      .subscribe((response : any) => {
+        this.currentAccount = response;
+      })
   }
 
   addAccount(accoutnF : any){
@@ -127,6 +140,7 @@ export class AccountsComponent implements OnInit {
       this.showError = true;
       this.errorMessage = error;
     })
+    this.loadCategories();
   }
 
   editAccount(accForm : any, id: number){
@@ -165,6 +179,7 @@ export class AccountsComponent implements OnInit {
         this.showSuccess = false;
         this.errorMessage = error;
     })
+    this.modalRef?.hide();
   }
 
   validateControl = (controlName: string) => {
@@ -187,6 +202,10 @@ export class AccountsComponent implements OnInit {
     else if (type == 'outcome'){
       this.accountForm.get('transactionCategory').enable();
     }
+  }
+
+  decline(): void {
+    this.modalRef?.hide();
   }
 
 }

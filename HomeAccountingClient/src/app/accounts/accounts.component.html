@@ -95,7 +95,7 @@
           <button type="submit" (click)="getConcreteAccountToEdit(account.id)" class=" btn btn-primary">Edit</button>
         </div>
         <div style="margin-left: 30px; margin-top: 5px;">
-          <button type="submit" (click)="deleteAccount(account.id)" class=" btn btn-danger">Delete</button>
+          <button type="submit" (click)="openModalOnDelete(template, account.id)" class=" btn btn-danger">Delete</button>
         </div>
         <div *ngIf="account.type === 'Outcome'" style="margin-left: 30px; margin-top: 5px;">
             <button type="submit" class=" btn btn-success">Set constaraints</button>
@@ -104,3 +104,12 @@
     </tr>
   </tbody>
 </table>
+
+
+<ng-template #template>
+  <div class="modal-body text-center">
+    <p>Do you want to delete account {{currentAccount.name}}?</p>
+    <button type="button" class="btn btn-default" (click)="deleteAccount(currentAccount.id)" >Yes</button>
+    <button type="button" class="btn btn-primary" (click)="decline()" >No</button>
+  </div>
+</ng-template>

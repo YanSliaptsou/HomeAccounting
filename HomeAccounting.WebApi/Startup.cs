@@ -73,6 +73,7 @@ namespace HomeAccounting.WebApi
             services.AddTransient<ICategoryService, CategoryService>();
             services.AddTransient<IAccountRepository, AccountRepository>();
             services.AddTransient<IAccountService, AccountService>();
+            services.AddTransient<ILimitsRepository, LimitsRepository>();
             services.AddAutoMapper(typeof(MappingProfiles.MappingProfiles).Assembly);
             services.AddCors();
 
