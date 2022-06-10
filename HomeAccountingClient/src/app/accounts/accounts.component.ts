@@ -1,15 +1,17 @@
 import { Component, OnInit, TemplateRef } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
-import { TabsetConfig } from 'ngx-bootstrap/tabs';
 import { AccountService } from '../shared/services/account.service';
 import { CategoryService } from '../shared/services/category.service';
 import { CurrenciesService } from '../shared/services/currencies.service';
+import { LimitService } from '../shared/services/limit.service';
 import { AccountEditDto } from '../_interfaces/Account/AccountEditDto';
 import { AccountReceiveDto } from '../_interfaces/Account/AccountReceiveDto';
 import { AccountSendDto } from '../_interfaces/Account/AccountSendDto';
 import { CategoryReceive} from '../_interfaces/Category/CategoryReceiveDto';
 import { Currency } from '../_interfaces/currency';
+import { LimitReceiveDto } from '../_interfaces/Limit/LimitReceiveDto';
+import { LimitSendDto } from '../_interfaces/Limit/LimitSendDto';
 
 
 @Component({
@@ -20,7 +22,7 @@ import { Currency } from '../_interfaces/currency';
 export class AccountsComponent implements OnInit {
 
   constructor(private currencyService : CurrenciesService, private categoryService : CategoryService,
-    private accountService : AccountService, private modalService: BsModalService) { }
+    private accountService : AccountService,private limitService : LimitService ,private modalService: BsModalService) { }
 
     isAdding = true;
     isEditing = false;
@@ -43,6 +45,23 @@ export class AccountsComponent implements OnInit {
 
     modalRef?: BsModalRef;
 
+    //--------------------------
+
+    isAddingLimit = true;
+    isEditingLimit = false;
+    showSuccessLimit = false;
+    showErrorLimit = false;
+    errorMessageLimit : string;
+    successMessageLimit : string;
+    limits : LimitReceiveDto[];
+    currentLimit : LimitReceiveDto;
+    modalRefLimit?: BsModalRef;
+    limitsForm : FormGroup;
+
+    currentLimitAmmount : number;
+    currentDateFrom : Date;
+    currentDateTo : Date;
+
   ngOnInit(): void {
     this.loadCategories();
     this.loadCurrencies();
@@ -59,11 +78,23 @@ export class AccountsComponent implements OnInit {
     this.accountForm.get('transactionCategory').disable();
     this.accountForm.get('name').disable();
 
+    this.limitsForm = new FormGroup({
+      limit : new FormControl("", [Validators.required, Validators.min(0)]),
+      dateFrom : new FormControl("", [Validators.required]),
+      dateTo : new FormControl("", [Validators.required])
+    })
   }
 
   openModalOnDelete(template: TemplateRef<any>, id : number) {
     this.modalRef = this.modalService.show(template, {class: 'modal-lg'});
     this.getConcreteAccount(id);
+  }
+
+  loadLimits(accountId : number){
+    this.limitService.getLimits("api/limits/" + accountId)
+      .subscribe((response : LimitReceiveDto[]) => {
+        this.limits = response;
+      })
   }
 
   loadCurrencies(){
@@ -87,6 +118,25 @@ export class AccountsComponent implements OnInit {
       .subscribe((response : any) => {
         this.accounts = response;
         console.log(response);
+      })
+  }
+
+  getConcreteLimitToEdit(id : number){
+    this.limitService.getConcreteLimit("api/limits/concrete/" + id)
+      .subscribe((response : LimitReceiveDto) => {
+        this.currentLimit = response;
+
+        this.isEditingLimit = true;
+        this.isAddingLimit = false;
+        this.showSuccessLimit = true;
+        this.showErrorLimit = false;
+
+        this.successMessageLimit = "Limit " + response.id + " selected to edit";
+
+        this.currentLimitAmmount = this.currentLimit.limit;
+        this.currentDateFrom = this.currentLimit.limitFrom;
+        this.currentDateTo = this.currentLimit.limitTo;
+
       })
   }
 
@@ -121,6 +171,33 @@ export class AccountsComponent implements OnInit {
       })
   }
 
+  getConcreteLimit(id : number){
+    this.limitService.getConcreteLimit("api/limits/concrete/" + id)
+    .subscribe((response : LimitReceiveDto) => {
+      this.currentLimit = response;
+    })
+  }
+
+  addLimit(limitForm : any){
+    const limForm = {... limitForm}
+    const lim : LimitSendDto = {
+      limit : limForm.limit,
+      limitFrom : limForm.dateFrom,
+      limitTo : limForm.dateTo
+    }
+    this.limitService.addLimit("api/limits", lim)
+      .subscribe((respose : any) => {
+        this.loadLimits(this.currentLimit.id);
+        this.showSuccessLimit = true;
+        this.showErrorLimit = false;
+        this.successMessageLimit = "Limit " + respose.id + " has successfuly added";
+      }, error => {
+        this.showSuccessLimit = false;
+        this.showErrorLimit = true;
+        this.errorMessage = error;
+      })
+  }
+
   addAccount(accoutnF : any){
     const accForm = {... accoutnF}
     const acc : AccountSendDto = {
@@ -141,6 +218,31 @@ export class AccountsComponent implements OnInit {
       this.errorMessage = error;
     })
     this.loadCategories();
+  }
+
+  editLimit(limitForm : any, id : number){
+    this.isEditingLimit = false;
+    this.isAddingLimit = true;
+
+    const limForm = {... limitForm}
+
+    const limit : LimitSendDto = {
+      limit : limForm.limit,
+      limitFrom : limForm.dateFrom,
+      limitTo : limForm.dateTo
+    }
+
+    this.limitService.editLimit("api/limits/" + id, limit)
+      .subscribe((response : any) => {
+        this.loadLimits(this.currentLimit.id);
+        this.showSuccessLimit = true;
+        this.showErrorLimit = false;
+        this.successMessageLimit = "Limit " + response.id + " has been successfully edited.";
+      }, error => {
+        this.showSuccessLimit = false;
+        this.showErrorLimit = true;
+        this.errorMessageLimit = error;
+      })
   }
 
   editAccount(accForm : any, id: number){
@@ -168,6 +270,19 @@ export class AccountsComponent implements OnInit {
     })
   }
 
+  deleteLimit(id : number){
+    this.limitService.deleteLimit("api/limits" + id).subscribe((response : any) => {
+      this.showSuccessLimit = true;
+      this.showErrorLimit = false;
+      this.successMessageLimit = "Limit nmb. " + id + " has been deleted successfully";
+      this.loadLimits(id);
+    }, error => {
+      this.showSuccessLimit = false;
+      this.showErrorLimit = true;
+      this.errorMessageLimit = error;
+    })
+  }
+
   deleteAccount(id : number){
     this.accountService.deleteAccount("api/accounts/"+id).subscribe((response : any) => {
       this.showSuccess = true;
@@ -182,12 +297,12 @@ export class AccountsComponent implements OnInit {
     this.modalRef?.hide();
   }
 
-  validateControl = (controlName: string) => {
-    return this.accountForm.get(controlName).invalid && this.accountForm!.get(controlName).touched
+  validateControl = (controlName: string, form : FormGroup) => {
+    return form.get(controlName).invalid && form.get(controlName).touched
   }
 
-  hasError = (controlName: string, errorName: string) => {
-    return this.accountForm.get(controlName).hasError(errorName)
+  hasError = (form : FormGroup, controlName: string, errorName: string) => {
+    return form.get(controlName).hasError(errorName)
   }
 
   updateForm(type : string){
@@ -206,6 +321,10 @@ export class AccountsComponent implements OnInit {
 
   decline(): void {
     this.modalRef?.hide();
+  }
+
+  declineLim() : void {
+    this.modalRefLimit?.hide();
   }
 
 }
