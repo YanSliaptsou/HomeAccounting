@@ -1,4 +1,4 @@
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpRequest } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -43,6 +43,7 @@ export class LoginComponent implements OnInit {
       email: login.username,
       password: login.password
     }
+
 
     this.authService.loginUser('api/users-accounts/login', userForAuth)
     .subscribe((response : AuthResponseDto) => {

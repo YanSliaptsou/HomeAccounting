@@ -9,6 +9,7 @@ using HomeAccounting.WebApi.DTOs.WorkingWithPasswordsDTOs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -23,12 +24,14 @@ namespace HomeAccounting.WebApi.Controllers
         private readonly IMapper _mapper;
         private readonly ITokenService _tokenService;
         private readonly IEmailSender _emailSender;
-        public UsersAccountsController(UserManager<AppUser> userManager, IMapper mapper, ITokenService tokenService, IEmailSender emailSender)
+        private readonly IConfiguration _configuration;
+        public UsersAccountsController(UserManager<AppUser> userManager, IMapper mapper, ITokenService tokenService, IEmailSender emailSender, IConfiguration configuration)
         {
             _userManager = userManager;
             _mapper = mapper;
             _tokenService = tokenService;
             _emailSender = emailSender;
+            _configuration = configuration;
         }
 
         [HttpPost("Register")]

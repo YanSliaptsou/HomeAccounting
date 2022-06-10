@@ -14,11 +14,6 @@ namespace HomeAccounting.Domain.Db
     {
         public DatabaseContext(DbContextOptions options) : base(options)
         {
-            //Database.EnsureCreatedAsync();
-        }
-
-        public DatabaseContext()
-        {
 
         }
 
@@ -29,5 +24,6 @@ namespace HomeAccounting.Domain.Db
         public DbSet<ParentTransactionCategory> ParentTransactionCategories { get; set; }
         public DbSet<TransactionCategory> TransactionCategories { get; set; }
         public DbSet<Account> Accounts { get; set; }
+        public DbSet<OutcomeLimit> OutcomeLimits { get; set; }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using HomeAccounting.Domain.Models;
-using HomeAccounting.Domain.Repositories.Abstarct;
+using HomeAccounting.Domain.Repositories.Interfaces;
 using HomeAccounting.WebApi.Controllers.BaseController;
 using Microsoft.AspNetCore.Mvc;
 using System;

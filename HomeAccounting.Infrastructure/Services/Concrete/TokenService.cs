@@ -1,4 +1,5 @@
-﻿using HomeAccounting.Infrastructure.Services.Abstract;
+﻿using HomeAccounting.Domain.Models;
+using HomeAccounting.Infrastructure.Services.Abstract;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -39,7 +40,8 @@ namespace HomeAccounting.Infrastructure.Services.Concrete
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Name, user.UserName)
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.NameIdentifier, user.Id)
             };
             return claims;
         }
