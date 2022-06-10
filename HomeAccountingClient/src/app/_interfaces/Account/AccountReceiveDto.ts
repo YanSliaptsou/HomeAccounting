@@ -1,3 +1,5 @@
+import { LimitReceiveDto } from "../Limit/LimitReceiveDto";
+
 export interface AccountReceiveDto{
     id : number;
     transactionCategoryId? : number;
@@ -5,4 +7,6 @@ export interface AccountReceiveDto{
     type : string;
     currencyId : string;
     appUserId : string;
+
+    limitsList? : LimitReceiveDto[];
 }

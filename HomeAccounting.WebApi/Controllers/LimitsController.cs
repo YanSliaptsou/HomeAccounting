@@ -43,7 +43,7 @@ namespace HomeAccounting.WebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateLimit(OutcomeLimit outcomeLimit)
+        public async Task<ActionResult> CreateLimit([FromBody] OutcomeLimit outcomeLimit)
         {
             if (outcomeLimit.LimitTo < DateTime.Now)
             {
@@ -57,8 +57,13 @@ namespace HomeAccounting.WebApi.Controllers
 
         [Route("{limitToEditId}")]
         [HttpPut]
-        public async Task<ActionResult> EditLimit(OutcomeLimit newLimit, int limitToEditId)
+        public async Task<ActionResult> EditLimit([FromBody] OutcomeLimit newLimit, int limitToEditId)
         {
+            if (newLimit.LimitTo < DateTime.Now)
+            {
+                return BadRequest("The date of LimitTo is expired");
+            }
+
             await _limitsRepository.EditLimit(newLimit, limitToEditId);
             return Ok();
         }

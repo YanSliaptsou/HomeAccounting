@@ -35,7 +35,14 @@ export class AccountsComponent implements OnInit {
     currencies : Currency[];
     categories : CategoryReceive[];
     accounts : AccountReceiveDto[];
-    currentAccount : AccountReceiveDto;
+    currentAccount : AccountReceiveDto = {
+      appUserId : null,
+      currencyId : null,
+      id : null,
+      name : null,
+      type : null,
+      transactionCategoryId : null
+    };
     accountForm : FormGroup;
 
     currentType : string;
@@ -59,8 +66,8 @@ export class AccountsComponent implements OnInit {
     limitsForm : FormGroup;
 
     currentLimitAmmount : number;
-    currentDateFrom : Date;
-    currentDateTo : Date;
+    currentDateFrom : string;
+    currentDateTo : string;
 
   ngOnInit(): void {
     this.loadCategories();
@@ -81,7 +88,7 @@ export class AccountsComponent implements OnInit {
     this.limitsForm = new FormGroup({
       limit : new FormControl("", [Validators.required, Validators.min(0)]),
       dateFrom : new FormControl("", [Validators.required]),
-      dateTo : new FormControl("", [Validators.required])
+      dateTo : new FormControl("", [Validators.required]),
     })
   }
 
@@ -90,17 +97,25 @@ export class AccountsComponent implements OnInit {
     this.getConcreteAccount(id);
   }
 
-  loadLimits(accountId : number){
-    this.limitService.getLimits("api/limits/" + accountId)
+  openModalOnDeleteLimit(template: TemplateRef<any>, id : number){
+    this.modalRefLimit = this.modalService.show(template, {class: 'modal-lg'});
+    this.getConcreteLimit(id);
+  }
+
+  loadLimits(account : AccountReceiveDto){
+    account.limitsList = [];
+    this.limitService.getLimits("api/limits/" + account.id)
       .subscribe((response : LimitReceiveDto[]) => {
         this.limits = response;
+        for(let lm of this.limits){
+          account.limitsList.push(lm);
+        }
       })
   }
 
   loadCurrencies(){
     this.currencyService.getCurrencies("api/currencies")
           .subscribe((response : any) => {
-            console.log(response);
             this.currencies = response;
           })
   }
@@ -109,7 +124,6 @@ export class AccountsComponent implements OnInit {
     this.categoryService.getCategories("api/categories/list-except-repeated")
       .subscribe((response : any) => {
         this.categories = response;
-        console.log(response);
       })
   }
 
@@ -117,7 +131,9 @@ export class AccountsComponent implements OnInit {
     this.accountService.getAccounts("api/accounts/" + type)
       .subscribe((response : any) => {
         this.accounts = response;
-        console.log(response);
+        for(let acc of this.accounts){
+          this.loadLimits(acc);
+        }
       })
   }
 
@@ -134,8 +150,8 @@ export class AccountsComponent implements OnInit {
         this.successMessageLimit = "Limit " + response.id + " selected to edit";
 
         this.currentLimitAmmount = this.currentLimit.limit;
-        this.currentDateFrom = this.currentLimit.limitFrom;
-        this.currentDateTo = this.currentLimit.limitTo;
+        this.currentDateFrom = this.currentLimit.limitFrom.toDateString();
+        this.currentDateTo = this.currentLimit.limitTo.toDateString();
 
       })
   }
@@ -183,18 +199,21 @@ export class AccountsComponent implements OnInit {
     const lim : LimitSendDto = {
       limit : limForm.limit,
       limitFrom : limForm.dateFrom,
-      limitTo : limForm.dateTo
+      limitTo : limForm.dateTo,
+      accountId : this.currentAccount.id
     }
     this.limitService.addLimit("api/limits", lim)
       .subscribe((respose : any) => {
-        this.loadLimits(this.currentLimit.id);
+        this.loadLimits(this.currentAccount);
         this.showSuccessLimit = true;
         this.showErrorLimit = false;
         this.successMessageLimit = "Limit " + respose.id + " has successfuly added";
+        console.log(this.successMessageLimit);
       }, error => {
         this.showSuccessLimit = false;
         this.showErrorLimit = true;
-        this.errorMessage = error;
+        this.errorMessageLimit = error;
+        console.log(this.errorMessageLimit);
       })
   }
 
@@ -229,12 +248,14 @@ export class AccountsComponent implements OnInit {
     const limit : LimitSendDto = {
       limit : limForm.limit,
       limitFrom : limForm.dateFrom,
-      limitTo : limForm.dateTo
+      limitTo : limForm.dateTo,
+      accountId : this.currentAccount.id
     }
 
     this.limitService.editLimit("api/limits/" + id, limit)
       .subscribe((response : any) => {
-        this.loadLimits(this.currentLimit.id);
+        console.log(this.currentAccount);
+        this.loadLimits(this.currentAccount);
         this.showSuccessLimit = true;
         this.showErrorLimit = false;
         this.successMessageLimit = "Limit " + response.id + " has been successfully edited.";
@@ -271,16 +292,18 @@ export class AccountsComponent implements OnInit {
   }
 
   deleteLimit(id : number){
-    this.limitService.deleteLimit("api/limits" + id).subscribe((response : any) => {
+    this.limitService.deleteLimit("api/limits/" + id).subscribe((response : any) => {
       this.showSuccessLimit = true;
       this.showErrorLimit = false;
       this.successMessageLimit = "Limit nmb. " + id + " has been deleted successfully";
-      this.loadLimits(id);
+      this.loadLimits(this.currentAccount);
     }, error => {
       this.showSuccessLimit = false;
       this.showErrorLimit = true;
       this.errorMessageLimit = error;
     })
+
+    this.modalRefLimit?.hide();
   }
 
   deleteAccount(id : number){
