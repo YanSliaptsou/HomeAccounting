@@ -22,7 +22,9 @@ namespace HomeAccounting.WebApi.MappingProfiles
             CreateMap<UserRegistrationRequestDTO, AppUser>();
             CreateMap<Ledger, LedgerResponseDto>()
                 .ForMember(x => x.AccountNameFrom, x => x.MapFrom(x => x.AccountFrom.Name))
-                .ForMember(x => x.AccountNameTo, x => x.MapFrom(x => x.AccountTo.Name));
+                .ForMember(x => x.AccountNameTo, x => x.MapFrom(x => x.AccountTo.Name))
+                .ForMember(x => x.CurrencyFrom, x => x.MapFrom(x => x.AccountFrom.CurrencyId))
+                .ForMember(x => x.CurrencyTo, x => x.MapFrom(x => x.AccountTo.CurrencyId));
             CreateMap<LegderSendDto, Ledger>()
                 .ForMember(x => x.Id, x => x.Ignore())
                 .ForMember(x => x.AccountFrom, x => x.Ignore())

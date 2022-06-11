@@ -14,4 +14,7 @@ export interface LedgerResponseDto{
     ammountTo : number;
     type : number;
     dateTime : Date;
+    currencyFrom : string;
+    currencyTo : string;
+    typeString?: string;
 }

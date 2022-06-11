@@ -29,21 +29,21 @@ export class LedgersService {
     );
   }
 
-  addLedger(legder : LedgerSendDto) : Observable<any> {
+  private addLedger(legder : LedgerSendDto) : Observable<any> {
     return this.http.post<any>(this.ledgersUrl, legder)
     .pipe(
       catchError(this.handleError<any>('addLegder'))
     )
   }
 
-  editLedger(id : number, ledger : LedgerSendDto) : Observable<any>{
+  private editLedger(id : number, ledger : LedgerSendDto) : Observable<any>{
     return this.http.put<any>(this.ledgersUrl + '/' + id, ledger)
       .pipe(
         catchError(this.handleError<any>('editLedger'))
       )
   }
 
-  deleteLedger(id : number) : Observable<any> {
+  private deleteLedger(id : number) : Observable<any> {
     return this.http.delete<any>(this.ledgersUrl + '/' + id)
       .pipe(
         catchError(this.handleError<any>('deleteLedger'))
@@ -113,8 +113,25 @@ export class LedgersService {
       this.editLedger(ledgerIdToUpdate, ledger).subscribe((response => {
 
       }), error => {
-        
+
       })
+    }
+  }
+
+  removeLedger(id : number){
+    this.deleteLedger(id).subscribe((response => {
+
+    }), error => {
+
+    })
+  }
+
+  resolveTransType(ledger: LedgerResponseDto){
+    if (ledger.type === 0){
+      ledger.typeString = 'Debet';
+    }
+    else if (ledger.type === 1){
+      ledger.typeString = 'Credit';
     }
   }
 }
