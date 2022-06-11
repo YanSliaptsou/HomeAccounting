@@ -23,7 +23,9 @@ namespace HomeAccounting.Domain.Repositories
 
         public async Task<IEnumerable<TransactionCategory>> GetAllCategoiesByParentCategory(int parentCategoryId)
         {
-            return await _context.TransactionCategories.Where(x => x.ParentTransactionCategoryId == parentCategoryId).ToListAsync();
+            var transactCat = await _context.TransactionCategories.Where(x => x.ParentTransactionCategoryId == parentCategoryId).ToListAsync();
+
+            return transactCat;
         }
 
         public async Task<IEnumerable<TransactionCategory>> GetAllCategories()

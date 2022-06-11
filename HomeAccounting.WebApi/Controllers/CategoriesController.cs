@@ -19,7 +19,6 @@ namespace HomeAccounting.WebApi.Controllers
     {
         private readonly ITransactionCategoryRepository _transactionCategoryRepository;
         private readonly ICategoryService _categoryService;
-
         public CategoriesController(ITransactionCategoryRepository transactionCategoryRepository, ICategoryService categoryService)
         {
             _transactionCategoryRepository = transactionCategoryRepository;

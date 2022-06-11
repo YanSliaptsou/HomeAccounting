@@ -22,6 +22,7 @@ import { TabsModule } from 'ngx-bootstrap/tabs'
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker'
 import { AccountsComponent } from './accounts/accounts.component';
 import { CommonModule } from '@angular/common';
+import { LedgersComponent } from './ledgers/ledgers.component';
 
 export function tokenGetter() {
   return localStorage.getItem("token");
@@ -36,6 +37,7 @@ export function tokenGetter() {
     NotfoundComponent,
     ParentCategoriesComponent,
     AccountsComponent,
+    LedgersComponent,
   ],
   imports: [
     JwtModule.forRoot({
@@ -60,6 +62,7 @@ export function tokenGetter() {
       { path: 'authentication', loadChildren: () => import('./authentification/authentification.module').then(m => m.AuthentificationModule) },
       { path: 'parent-categories', component: ParentCategoriesComponent, canActivate: [AuthGuard]},
       { path: 'accounts', component: AccountsComponent, canActivate: [AuthGuard]},
+      { path: 'ledgers', component: LedgersComponent, canActivate: [AuthGuard]},
       { path: '', redirectTo: '/home', pathMatch: 'full' },
       { path: '**', redirectTo: '/404', pathMatch: 'full'}
     ]),

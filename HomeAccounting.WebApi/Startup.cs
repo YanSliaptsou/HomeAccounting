@@ -16,6 +16,8 @@ using HomeAccounting.Infrastructure.Services.Abstract;
 using HomeAccounting.Infrastructure.Services.Concrete;
 using HomeAccounting.Infrastructure.Configurations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using HomeAccounting.Infrastructure.Services.Interfaces;
+using HomeAccounting.Infrastructure.Services;
 
 namespace HomeAccounting.WebApi
 {
@@ -74,6 +76,8 @@ namespace HomeAccounting.WebApi
             services.AddTransient<IAccountRepository, AccountRepository>();
             services.AddTransient<IAccountService, AccountService>();
             services.AddTransient<ILimitsRepository, LimitsRepository>();
+            services.AddTransient<ILegderRepository, LegderRepository>();
+            services.AddTransient<ILegderService, LegderService>();
             services.AddAutoMapper(typeof(MappingProfiles.MappingProfiles).Assembly);
             services.AddCors();
 
