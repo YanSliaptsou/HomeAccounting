@@ -21,7 +21,7 @@ namespace HomeAccounting.WebApi.DTOs
         public decimal AmmountTo { get; set; }
 
         [Required(ErrorMessage = "Type is required")]
-        public LedgerType Type { get; set; }
+        public byte Type { get; set; }
         public DateTime? DateTime { get; set; }
     }
 }

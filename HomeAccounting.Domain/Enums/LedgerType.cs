@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HomeAccounting.Domain.Enums
 {
-    public  enum LedgerType : byte
+    public enum LedgerType : byte
     {
         Debet = 0,
         Credit = 1

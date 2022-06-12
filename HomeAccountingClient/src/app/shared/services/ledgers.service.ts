@@ -16,6 +16,11 @@ export class LedgersService {
   private ledgersUrl = environment.urlAddress + "/api/ledgers";
   private ADD_OPTION = 'ADD';
   private EDIT_OPTION = 'EDIT';
+  private ACCOUNT_FROM = 'accountFrom';
+  private ACCOUNT_TO = 'accountTo';
+  private AMMOUNT_FROM = 'ammountFrom';
+  private AMMOUNT_TO = 'ammountTo';
+  private DATETIME = 'dateTime';
 
   constructor(private http : HttpClient) { }
 
@@ -23,38 +28,24 @@ export class LedgersService {
 
     var queryString = this.buildQueryString(type,accountFromId,accountToId);
 
-    return this.http.get<LedgerResponseDto[]>(this.ledgersUrl + queryString)
-    .pipe(
-      catchError(this.handleError<LedgerResponseDto[]>('getLedgers', []))
-    );
+    return this.http.get<LedgerResponseDto[]>(this.ledgersUrl + queryString);
+  }
+
+   getLedger(id : number) : Observable<LedgerResponseDto>{
+    return this.http.get<LedgerResponseDto>(this.ledgersUrl + '/' + id);
   }
 
   private addLedger(legder : LedgerSendDto) : Observable<any> {
-    return this.http.post<any>(this.ledgersUrl, legder)
-    .pipe(
-      catchError(this.handleError<any>('addLegder'))
-    )
+    return this.http.post<any>(this.ledgersUrl, legder);
   }
 
   private editLedger(id : number, ledger : LedgerSendDto) : Observable<any>{
     return this.http.put<any>(this.ledgersUrl + '/' + id, ledger)
-      .pipe(
-        catchError(this.handleError<any>('editLedger'))
-      )
   }
 
   private deleteLedger(id : number) : Observable<any> {
-    return this.http.delete<any>(this.ledgersUrl + '/' + id)
-      .pipe(
-        catchError(this.handleError<any>('deleteLedger'))
-      )
-  }
-
-  private handleError<T>(operation = 'operation', result?: T) {
-    return (error: any): Observable<T> => {
-      console.error(error);
-      return of(result as T);
-    };
+    console.log(id);
+    return this.http.delete<any>(this.ledgersUrl + '/' + id);
   }
 
   private buildQueryString(type : number = null, accountFromId : number = null, accountToId : number = null) : string {
@@ -87,6 +78,13 @@ export class LedgersService {
       dateTime : new FormControl("", [Validators.required])
     })
 
+    /*ledgerForm.get(this.ACCOUNT_FROM).disable();
+    ledgerForm.get(this.AMMOUNT_FROM).disable();
+    ledgerForm.get(this.ACCOUNT_TO).disable();
+    ledgerForm.get(this.AMMOUNT_TO).disable();
+    ledgerForm.get(this.DATETIME).disable();*/
+
+
     return ledgerForm;
   }
 
@@ -104,25 +102,26 @@ export class LedgersService {
 
     if (option === this.ADD_OPTION){
       this.addLedger(ledger).subscribe((response => {
-
+        return response;
       }), error => {
-
+        return error;
       })
     }
     else if (option == this.EDIT_OPTION){
       this.editLedger(ledgerIdToUpdate, ledger).subscribe((response => {
-
+        return response
       }), error => {
-
+        return error
       })
     }
   }
 
   removeLedger(id : number){
+    console.log(id);
     this.deleteLedger(id).subscribe((response => {
-
+      return response
     }), error => {
-
+      return error;
     })
   }
 
@@ -133,5 +132,25 @@ export class LedgersService {
     else if (ledger.type === 1){
       ledger.typeString = 'Credit';
     }
+  }
+
+  enableForm(form : FormGroup, transactType : string){
+    /*if (transactType == 'Income'){
+      form.get(this.AMMOUNT_FROM).disable();
+      form.get(this.ACCOUNT_TO).disable();
+      form.get(this.AMMOUNT_TO).disable();
+      form.get(this.DATETIME).disable();
+
+      form.get(this.ACCOUNT_FROM).enable();
+    }
+    else if (transactType == 'Outcome'){
+
+      form.get(this.ACCOUNT_FROM).disable();
+      form.get(this.AMMOUNT_FROM).disable();
+
+      form.get(this.ACCOUNT_TO).enable();
+      form.get(this.AMMOUNT_TO).enable();
+      form.get(this.DATETIME).enable();
+    }*/
   }
 }

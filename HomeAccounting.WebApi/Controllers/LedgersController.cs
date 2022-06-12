@@ -77,11 +77,13 @@ namespace HomeAccounting.WebApi.Controllers
             else
             {
                 var ledger = _mapper.Map<Ledger>(legder);
+                ledger.UserId = User.GetUserId();
                 await _legderService.CreateLegder(ledger);
                 return Ok(new Response<Ledger> { Data = ledger, IsSuccessful = true, ErrorCode = null, ErrorMessage = null });
             }
         }
 
+        [Route("{legderId}")]
         [HttpPut]
         public async Task<ActionResult<Ledger>> EditLedger(int legderId, LegderSendDto ledgerToEdit)
         {
@@ -97,6 +99,7 @@ namespace HomeAccounting.WebApi.Controllers
             }
         }
 
+        [Route("{ledgerId}")]
         [HttpDelete]
         public async Task<ActionResult> DeleteLedger(int ledgerId)
         {

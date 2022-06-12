@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
+using HomeAccounting.Domain.Enums;
 
 namespace HomeAccounting.WebApi.MappingProfiles
 {
@@ -26,6 +26,7 @@ namespace HomeAccounting.WebApi.MappingProfiles
                 .ForMember(x => x.CurrencyFrom, x => x.MapFrom(x => x.AccountFrom.CurrencyId))
                 .ForMember(x => x.CurrencyTo, x => x.MapFrom(x => x.AccountTo.CurrencyId));
             CreateMap<LegderSendDto, Ledger>()
+                .ForMember(x => x.Type, x => x.MapFrom(src => src.Type == 0 ? LedgerType.Debet : LedgerType.Credit))
                 .ForMember(x => x.Id, x => x.Ignore())
                 .ForMember(x => x.AccountFrom, x => x.Ignore())
                 .ForMember(x => x.AccountTo, x => x.Ignore())
