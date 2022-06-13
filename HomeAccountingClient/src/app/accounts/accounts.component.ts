@@ -107,6 +107,7 @@ export class AccountsComponent implements OnInit {
     this.limitService.getLimits("api/limits/" + account.id)
       .subscribe((response : LimitReceiveDto[]) => {
         this.limits = response;
+        console.log(this.limits);
         for(let lm of this.limits){
           account.limitsList.push(lm);
         }

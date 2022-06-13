@@ -6,8 +6,8 @@
                 <label for="type" class="col-form-label col-sm-2">Transaction type:</label>
                 <div class="col-md-5">
                     <select [ngModel]="type" class="form-control" id="type" formControlName="type">
-                        <option (click)="ledgService.enableForm(ledgersForm, 'Income')" [value]="0">Income</option>
-                        <option (click)="ledgService.enableForm(ledgersForm, 'Outcome')" [value]="1">Outcome</option>
+                        <option (click)="type = 0; ledgService.enableForm(ledgersForm, 'Income'); loadIncomeAccounts(1); loadOutcomeAccounts(1)" [value]="0">Income</option>
+                        <option (click)="type = 1; ledgService.enableForm(ledgersForm, 'Outcome'); loadIncomeAccounts(0); loadOutcomeAccounts(0)" [value]="1">Outcome</option>
                     </select>
                 </div>
             </div>
@@ -15,7 +15,7 @@
                 <label for="accountFrom" class="col-form-label col-sm-2">Account from:</label>
                 <div class="col-md-5">
                     <select [ngModel]="accountFromId" class="form-control" id="accountFrom" formControlName="accountFrom">
-                        <option *ngFor="let incomeAccount of incomeAccounts" [value]="incomeAccount.id">{{incomeAccount.name}}</option>
+                        <option (click)="currencyFrom = incomeAccount.currencyId; ledgService.accountFromSelect(ledgersForm)" *ngFor="let incomeAccount of incomeAccounts" [value]="incomeAccount.id">{{incomeAccount.name }} ({{incomeAccount.currencyId}})</option>
                     </select>
                 </div>
             </div>
@@ -23,20 +23,20 @@
                 <label for="accountTo" class="col-form-label col-sm-2">Account to:</label>
                 <div class="col-md-5">
                     <select [ngModel]="accountToId" class="form-control" id="accountTo" formControlName="accountTo">
-                        <option *ngFor="let outcomeAccount of outcomeAccounts" [value]="outcomeAccount.id">{{outcomeAccount.name}}</option>
+                        <option (click)="currencyTo = outcomeAccount.currencyId; ledgService.accountToSelect(ledgersForm, type)" *ngFor="let outcomeAccount of outcomeAccounts" [value]="outcomeAccount.id">{{outcomeAccount.name}} ({{outcomeAccount.currencyId}})</option>
                     </select>
                 </div>
             </div>
             <div class="mb-3 row">
                 <label for="ammountFrom" class="col-form-label col-sm-2">Ammount from:</label>
                 <div class="col-md-5">
-                    <input [ngModel]="ammountFrom" placeholder="Ammount from"  type="number" id="ammountFrom" formControlName="ammountFrom" class="form-control"/>
+                    <input [ngModel]="ammountFrom" (keyup)="func()" placeholder="Ammount from"  type="number" id="ammountFrom" formControlName="ammountFrom" class="form-control"/>
                 </div>
             </div>
             <div class="mb-3 row">
                 <label for="ammountTo" class="col-form-label col-sm-2">Ammount to:</label>
                 <div class="col-md-5">
-                    <input [ngModel]="ammountTo" placeholder="Ammount to"  type="number" id="ammountTo" formControlName="ammountTo" class="form-control"/>
+                    <input [ngModel]="ammountTo" [placeholder]="placeholder"  type="number" id="ammountTo" formControlName="ammountTo" class="form-control"/>
                 </div>
             </div>
             <div class="mb-3 row">

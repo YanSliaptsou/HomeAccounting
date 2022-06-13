@@ -88,13 +88,16 @@
     <tr *ngFor="let account of accounts">
       <th scope="row">{{account.id}}</th>
       <td>{{account.name}}</td>
-      <td>
+      <td *ngIf="account.limitsList.length > 0">
         <table>
           <thead>
             <tr>
               <th>Date From</th>
               <th>Date To</th>
               <th>Sum</th>
+              <th>Total Spend</th>
+              <th>Spend Progress %</th>
+              <th>%</th>
             </tr>
           </thead>
           <tbody>
@@ -102,10 +105,20 @@
               <td>{{lim.limitFrom | date}}</td>
               <td>{{lim.limitTo | date}}</td>
               <td>{{lim.limit}}</td>
+              <td>{{lim.totalSpend}}</td>
+              <td>
+                  <progressbar *ngIf="lim.percentage >=0 && lim.percentage < 50" style="color:black;" [value]="lim.percentage" type="success" [striped]="true"></progressbar>
+                  <progressbar *ngIf="lim.percentage >=50 && lim.percentage < 80" style="color:black;" [value]="lim.percentage" type="warning" [striped]="true"></progressbar>
+                  <progressbar *ngIf="lim.percentage >=80" style="color:black;" [value]="lim.percentage" type="danger" [striped]="true"></progressbar>
+              </td>
+              <td *ngIf="lim.percentage >=0 && lim.percentage < 50" style="color:green"><b>{{lim.percentage}}</b></td>
+              <td *ngIf="lim.percentage >=50 && lim.percentage < 80" style="color:orange"><b>{{lim.percentage}}</b></td>
+              <td *ngIf="lim.percentage >=80"><b>{{lim.percentage}}</b></td>
             </tr>
           </tbody>
         </table>
       </td>
+      <td *ngIf="account.limitsList.length === 0">-</td>
       <td>{{account.currencyId}}</td>
       <td><div class="mb-3 row" >
         <div style="margin-left: 30px; margin-top: 5px;">

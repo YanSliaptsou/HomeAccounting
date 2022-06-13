@@ -18,6 +18,11 @@ namespace HomeAccounting.Infrastructure.Services.Concrete
 
         public async Task<decimal> GetExchangeRate(string currencyFrom, string currencyTo)
         {
+            if (currencyFrom == currencyTo)
+            {
+                return 1;
+            }
+
             decimal rate = 0;
             var rates = await _exchangeRatesRepository.GetAllExchaneRates();
             currencyFrom = currencyFrom.ToUpper();

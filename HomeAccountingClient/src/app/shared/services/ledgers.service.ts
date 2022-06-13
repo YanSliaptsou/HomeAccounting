@@ -4,9 +4,11 @@ import { Injectable } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Observable, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
+import { AccountReceiveDto } from 'src/app/_interfaces/Account/AccountReceiveDto';
 import { LedgerResponseDto } from 'src/app/_interfaces/Legder/LedgerResponseDto';
 import { LedgerSendDto } from 'src/app/_interfaces/Legder/LegderSendDto';
 import { environment } from 'src/environments/environment';
+import { ExchangeRatesService } from './exchange-rates.service';
 
 @Injectable({
   providedIn: 'root'
@@ -35,15 +37,15 @@ export class LedgersService {
     return this.http.get<LedgerResponseDto>(this.ledgersUrl + '/' + id);
   }
 
-  private addLedger(legder : LedgerSendDto) : Observable<any> {
+   addLedger(legder : LedgerSendDto) : Observable<any> {
     return this.http.post<any>(this.ledgersUrl, legder);
   }
 
-  private editLedger(id : number, ledger : LedgerSendDto) : Observable<any>{
+   editLedger(id : number, ledger : LedgerSendDto) : Observable<any>{
     return this.http.put<any>(this.ledgersUrl + '/' + id, ledger)
   }
 
-  private deleteLedger(id : number) : Observable<any> {
+   deleteLedger(id : number) : Observable<any> {
     console.log(id);
     return this.http.delete<any>(this.ledgersUrl + '/' + id);
   }
@@ -78,11 +80,11 @@ export class LedgersService {
       dateTime : new FormControl("", [Validators.required])
     })
 
-    /*ledgerForm.get(this.ACCOUNT_FROM).disable();
+    ledgerForm.get(this.ACCOUNT_FROM).disable();
     ledgerForm.get(this.AMMOUNT_FROM).disable();
     ledgerForm.get(this.ACCOUNT_TO).disable();
     ledgerForm.get(this.AMMOUNT_TO).disable();
-    ledgerForm.get(this.DATETIME).disable();*/
+    ledgerForm.get(this.DATETIME).disable();
 
 
     return ledgerForm;
@@ -135,7 +137,7 @@ export class LedgersService {
   }
 
   enableForm(form : FormGroup, transactType : string){
-    /*if (transactType == 'Income'){
+    if (transactType == 'Outcome'){
       form.get(this.AMMOUNT_FROM).disable();
       form.get(this.ACCOUNT_TO).disable();
       form.get(this.AMMOUNT_TO).disable();
@@ -143,7 +145,7 @@ export class LedgersService {
 
       form.get(this.ACCOUNT_FROM).enable();
     }
-    else if (transactType == 'Outcome'){
+    else if (transactType == 'Income'){
 
       form.get(this.ACCOUNT_FROM).disable();
       form.get(this.AMMOUNT_FROM).disable();
@@ -151,6 +153,19 @@ export class LedgersService {
       form.get(this.ACCOUNT_TO).enable();
       form.get(this.AMMOUNT_TO).enable();
       form.get(this.DATETIME).enable();
-    }*/
+    }
+  }
+
+  accountFromSelect(form : FormGroup){
+    form.get(this.ACCOUNT_TO).enable();
+  }
+
+  accountToSelect(form : FormGroup, type : number){
+    console.log(type);
+    if (type == 1){
+      form.get(this.AMMOUNT_FROM).enable();
+    }
+    form.get(this.AMMOUNT_TO).enable();
+    form.get(this.DATETIME).enable();
   }
 }

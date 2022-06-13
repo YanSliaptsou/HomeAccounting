@@ -1,6 +1,8 @@
 ﻿using HomeAccounting.Domain.Models.Entities;
 using HomeAccounting.Domain.Repositories.Interfaces;
+using HomeAccounting.Infrastructure.Services.Interfaces;
 using HomeAccounting.WebApi.Controllers.BaseController;
+using HomeAccounting.WebApi.DTOs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,10 +18,12 @@ namespace HomeAccounting.WebApi.Controllers
     public class LimitsController : BaseApiController
     {
         private readonly ILimitsRepository _limitsRepository;
+        private readonly ILimitsService _limitsService;
 
-        public LimitsController(ILimitsRepository limitsRepository)
+        public LimitsController(ILimitsRepository limitsRepository, ILimitsService limitsService)
         {
             _limitsRepository = limitsRepository;
+            _limitsService = limitsService;
         }
         
         [HttpGet]
@@ -30,9 +34,22 @@ namespace HomeAccounting.WebApi.Controllers
 
         [Route("{accountId}")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<OutcomeLimit>>> GetLimitsByAccount(int accountId)
+        public async Task<ActionResult<IEnumerable<OutcomeLimitResponseDto>>> GetLimitsByAccount(int accountId)
         {
-            return Ok(await _limitsRepository.GetLimitsByAccount(accountId));
+            List<OutcomeLimitResponseDto> limits = new List<OutcomeLimitResponseDto>();
+            foreach(var lim in await _limitsRepository.GetLimitsByAccount(accountId))
+            {
+                limits.Add(new OutcomeLimitResponseDto {
+                    AccountId = lim.AccountId,
+                    Id = lim.Id,
+                    Limit = lim.Limit,
+                    LimitFrom = lim.LimitFrom,
+                    LimitTo = lim.LimitTo,
+                    Percentage = await _limitsService.CalculatePercentage(lim.Id),
+                    TotalSpend = await _limitsService.CalculateTotalSpend(lim.AccountId, (DateTime)lim.LimitFrom, (DateTime)lim.LimitTo)
+                });
+            }
+            return Ok(limits);
         }
 
         [Route("concrete/{limitId}")]

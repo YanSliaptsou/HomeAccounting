@@ -19,6 +19,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { TabsModule } from 'ngx-bootstrap/tabs'
+import { ProgressbarModule } from 'ngx-bootstrap/progressbar'
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker'
 import { AccountsComponent } from './accounts/accounts.component';
 import { CommonModule } from '@angular/common';
@@ -56,6 +57,7 @@ export function tokenGetter() {
     BsDatepickerModule.forRoot(),
     FormsModule,
     CommonModule,
+    ProgressbarModule.forRoot(),
     RouterModule.forRoot([
       { path: 'home', component: HomeComponent, canActivate:[AuthGuard] },
       { path: '404', component: NotfoundComponent},

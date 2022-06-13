@@ -4,4 +4,6 @@ export interface LimitReceiveDto{
     limit : number;
     limitFrom : Date;
     limitTo : Date;
+    totalSpend : number,
+    percentage : number;
 }

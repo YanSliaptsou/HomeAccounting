@@ -78,6 +78,7 @@ namespace HomeAccounting.WebApi
             services.AddTransient<ILimitsRepository, LimitsRepository>();
             services.AddTransient<ILegderRepository, LegderRepository>();
             services.AddTransient<ILegderService, LegderService>();
+            services.AddTransient<ILimitsService,  LimitsService>();
             services.AddAutoMapper(typeof(MappingProfiles.MappingProfiles).Assembly);
             services.AddCors();
 
