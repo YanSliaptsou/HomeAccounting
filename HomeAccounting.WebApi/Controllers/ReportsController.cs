@@ -31,15 +31,15 @@ namespace HomeAccounting.WebApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<IncomeReport>>> GetIncomeReport([FromQuery] DateTime dateFrom, [FromQuery] DateTime dateTo)
         {
-            var report = _repConstructorService.GetFullIncomeReport(User.GetUserId(), dateFrom, dateTo);
+            var report = await _repConstructorService.GetFullIncomeReport(User.GetUserId(), dateFrom, dateTo);
             return Ok(report);
         }
 
         [Route("Outcome")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<IncomeReport>>> GetOutcomeReport([FromQuery] DateTime dateFrom, [FromQuery] DateTime dateTo)
+        public async Task<ActionResult<IEnumerable<OutcomeReport>>> GetOutcomeReport([FromQuery] DateTime dateFrom, [FromQuery] DateTime dateTo)
         {
-            var report = _repConstructorService.GetFullOutcomeReport(User.GetUserId(), dateFrom, dateTo);
+            var report = await _repConstructorService.GetFullOutcomeReport(User.GetUserId(), dateFrom, dateTo);
             return Ok(report);
         }
     }
