@@ -25,5 +25,15 @@ namespace HomeAccounting.Domain.Repositories
 
              user.MainCurrencyId = currency.Id;
         }
+
+        public async Task<AppUser> GetConcreteUser(string userId)
+        {
+            return await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+        }
+
+        public async Task<IEnumerable<AppUser>> GetUsersList()
+        {
+            return await _context.Users.ToListAsync();
+        }
     }
 }

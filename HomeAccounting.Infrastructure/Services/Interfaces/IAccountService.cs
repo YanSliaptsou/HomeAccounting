@@ -1,4 +1,5 @@
-﻿using HomeAccounting.Domain.Models.Entities;
+﻿using HomeAccounting.Domain.Enums;
+using HomeAccounting.Domain.Models.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,7 @@ namespace HomeAccounting.Infrastructure.Services.Abstract
     {
         Task<bool> IsSuchAccountNameExists(string userId, string name);
         Task<string> CreateNameForOutcome(Account account, int categoryId);
+        Task<LedgerType> DefineAccountType(int accountId);
+        Task<List<Account>> GetAccountsListByCategory(int categoryId);
     }
 }

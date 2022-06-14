@@ -18,6 +18,7 @@ using HomeAccounting.Infrastructure.Configurations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using HomeAccounting.Infrastructure.Services.Interfaces;
 using HomeAccounting.Infrastructure.Services;
+using System.Text.Json.Serialization;
 
 namespace HomeAccounting.WebApi
 {
@@ -53,7 +54,9 @@ namespace HomeAccounting.WebApi
                 };
             });
 
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(options =>
+                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "HomeAccounting.WebApi", Version = "v1" });
@@ -79,6 +82,9 @@ namespace HomeAccounting.WebApi
             services.AddTransient<ILegderRepository, LegderRepository>();
             services.AddTransient<ILegderService, LegderService>();
             services.AddTransient<ILimitsService,  LimitsService>();
+            services.AddTransient<IRepCalculatorService, RepCalculatorService>();
+            services.AddTransient<IRepConstructorService, RepConstructorService>();
+            services.AddTransient<IRepItemsService, RepItemsService>();
             services.AddAutoMapper(typeof(MappingProfiles.MappingProfiles).Assembly);
             services.AddCors();
 

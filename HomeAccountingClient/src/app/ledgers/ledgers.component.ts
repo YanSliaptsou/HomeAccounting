@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { AfterContentChecked, Component, OnInit, TemplateRef } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
@@ -44,7 +45,8 @@ export class LedgersComponent implements OnInit {
   constructor(public ledgService : LedgersService, 
     private accountService : AccountService, 
     private modalService : BsModalService,
-    private exchRateServ : ExchangeRatesService) { }
+    private exchRateServ : ExchangeRatesService,
+    private http : HttpClient) { }
   
 
   ledgers : LedgerResponseDto[];
@@ -71,6 +73,10 @@ export class LedgersComponent implements OnInit {
     this.loadLedgers();
     this.ledgersForm = this.ledgService.initLedgerForm()
     console.log(this.ledgersForm.valid)
+    this.http.get<any>('https://localhost:5001/api/reports/outcome?dateFrom=2022-06-01T09:23:07.179&dateTo=2022-06-30T09:23:07.179')
+    .subscribe((resp) => {
+      console.log(resp);
+    })
   }
 
   loadLedgers(){

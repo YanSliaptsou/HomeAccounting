@@ -1,6 +1,8 @@
-﻿using HomeAccounting.Domain.Models.Entities;
+﻿using HomeAccounting.Domain.Enums;
+using HomeAccounting.Domain.Models.Entities;
 using HomeAccounting.Domain.Repositories.Interfaces;
 using HomeAccounting.Infrastructure.Services.Abstract;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -34,6 +36,25 @@ namespace HomeAccounting.Infrastructure.Services.Concrete
             }
 
             return string.Empty;
+        }
+
+        public async Task<LedgerType> DefineAccountType(int accountId)
+        {
+            return _accountRepository.GetAccountById(accountId).Result.Type == "Income" ? LedgerType.Debet : LedgerType.Credit;
+        }
+
+        public async Task<List<Account>> GetAccountsListByCategory(int categoryId)
+        {
+            List<Account> accountsList = new List<Account>();
+            var categories = await _transactionCategoryRepository.GetAllCategoiesByParentCategory(categoryId);
+
+            foreach (var category in categories)
+            {
+                var account = await _accountRepository.GetAccountByCategory(category.Id);
+                accountsList.Add(account);
+            }
+
+            return accountsList;
         }
 
         public async Task<bool> IsSuchAccountNameExists(string userId, string name)
