@@ -73,7 +73,7 @@ export class LedgersComponent implements OnInit {
     this.loadLedgers();
     this.ledgersForm = this.ledgService.initLedgerForm()
     console.log(this.ledgersForm.valid)
-    this.http.get<any>('https://localhost:5001/api/reports/outcome?dateFrom=2022-06-01T09:23:07.179&dateTo=2022-06-30T09:23:07.179')
+    this.http.get<any>('https://localhost:5001/api/reports/income?dateFrom=2022-06-01T09:23:07.179&dateTo=2022-06-30T09:23:07.179')
     .subscribe((resp) => {
       console.log(resp);
     })

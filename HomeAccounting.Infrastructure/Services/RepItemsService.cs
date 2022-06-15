@@ -64,7 +64,10 @@ namespace HomeAccounting.Infrastructure.Services
 
             foreach(var account in accounts)
             {
-                outcomeAccountReports.Add(await GetAccountReport(account.Id, dateFrom, dateTo));
+                if (account != null)
+                {
+                    outcomeAccountReports.Add(await GetAccountReport(account.Id, dateFrom, dateTo));
+                }
             }
 
             var percentage = await _repCalculatorService.CalculatePercentageByCategory(categoryId, dateFrom, dateTo);

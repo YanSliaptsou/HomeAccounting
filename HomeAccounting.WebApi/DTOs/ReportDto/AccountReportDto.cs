@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace HomeAccounting.WebApi.DTOs.ReportDto
 {
-    public class CategoryReportDto
+    public class AccountReportDto
     {
-        public string CategoryName { get; set; }
+        public string AccountName { get; set; }
         public decimal SumInLocalCurrency { get; set; }
         public string LocalCurrencyCode { get; set; }
         public decimal SumInUsersCurrency { get; set; }

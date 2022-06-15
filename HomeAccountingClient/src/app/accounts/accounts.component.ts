@@ -229,6 +229,7 @@ export class AccountsComponent implements OnInit {
     this.accountService.addAccount("api/accounts", acc)
     .subscribe((response : any) => {
       this.loadAccounts("All");
+      this.loadCategories();
       this.showSuccess = true;
       this.showError = false;
       this.successMessage = "Account " + response.name + " has successfuly added.";
@@ -237,7 +238,6 @@ export class AccountsComponent implements OnInit {
       this.showError = true;
       this.errorMessage = error;
     })
-    this.loadCategories();
   }
 
   editLimit(limitForm : any, id : number){

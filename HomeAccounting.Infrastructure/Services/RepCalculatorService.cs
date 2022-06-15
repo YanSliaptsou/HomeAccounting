@@ -49,8 +49,11 @@ namespace HomeAccounting.Infrastructure.Services
 
             foreach(var account in accountsList)
             {
-                totalSum += await CalculateByAccount(account.Id, dateFrom, dateTo) * 
-                    await _exchangeRatesService.GetExchangeRate(account.CurrencyId, userCurrency);
+                if (account != null)
+                {
+                    totalSum += await CalculateByAccount(account.Id, dateFrom, dateTo) *
+                        await _exchangeRatesService.GetExchangeRate(account.CurrencyId, userCurrency);
+                }
             }
 
             return totalSum;
@@ -67,7 +70,16 @@ namespace HomeAccounting.Infrastructure.Services
             var sumByAccount = await CalculateByAccount(accountId, dateFrom, dateTo);
             var totalSum = await CalculateTotal(userId, ledgerType, dateFrom, dateTo);
 
-            return (sumByAccount * await _exchangeRatesService.GetExchangeRate(accountCurrency, userCurrency) / totalSum) * 100;
+            var exchangeRate = await _exchangeRatesService.GetExchangeRate(accountCurrency, userCurrency);
+
+            if (totalSum != 0)
+            {
+                return ((sumByAccount * exchangeRate) / totalSum) * 100;
+            }
+            else
+            {
+                return 0;
+            }
         }
 
         public async Task<decimal> CalculatePercentageByCategory(int categoryId, DateTime dateFrom, DateTime dateTo)
@@ -76,7 +88,12 @@ namespace HomeAccounting.Infrastructure.Services
             var totalByCategory = await CalculateByCategory(categoryId, dateFrom, dateTo);
             var totalSum = await CalculateTotal(userId, LedgerType.Credit, dateFrom, dateTo);
 
-            return (totalByCategory / totalSum) * 100;
+            if (totalSum != 0)
+            {
+                return (totalByCategory / totalSum) * 100;
+            }
+
+            return 0;     
         }
 
         public async Task<decimal> CalculateTotal(string userId, LedgerType type, DateTime dateFrom, DateTime dateTo)

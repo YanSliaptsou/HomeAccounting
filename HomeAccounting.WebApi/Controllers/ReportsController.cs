@@ -1,10 +1,13 @@
-﻿using HomeAccounting.Domain.Db;
+﻿using AutoMapper;
+using HomeAccounting.Domain.Db;
 using HomeAccounting.Domain.Models.Entities.Reports;
 using HomeAccounting.Domain.Repositories.Interfaces;
 using HomeAccounting.Infrastructure.Extensions;
 using HomeAccounting.Infrastructure.Services.Interfaces;
 using HomeAccounting.WebApi.Controllers.BaseController;
-using HomeAccounting.WebApi.DTOs.ReportDto;
+using HomeAccounting.WebApi.DTOs;
+using HomeAccounting.WebApi.DTOs.ReportDto.Income;
+using HomeAccounting.WebApi.DTOs.ReportDto.Outcome;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,25 +25,65 @@ namespace HomeAccounting.WebApi.Controllers
     {
 
         private readonly IRepConstructorService _repConstructorService;
-        public ReportsController(IRepConstructorService repConstructorService)
+        private readonly IMapper _mapper;
+        private const string ERROR_MESSAGE = "Date to is less than date from.";
+        public ReportsController(IRepConstructorService repConstructorService, IMapper mapper)
         {
             _repConstructorService = repConstructorService;
+            _mapper = mapper;
         }
 
         [Route("Income")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<IncomeReport>>> GetIncomeReport([FromQuery] DateTime dateFrom, [FromQuery] DateTime dateTo)
+        public async Task<ActionResult<IncomeReportDto>> GetIncomeReport([FromQuery] DateTime dateFrom, [FromQuery] DateTime dateTo)
         {
+            if (dateFrom >= dateTo)
+            {
+                return BadRequest(new Response<IncomeReportDto>
+                {
+                    Data = null,
+                    ErrorCode = HttpStatusCode.BadRequest.ToString(),
+                    IsSuccessful = false,
+                    ErrorMessage = ERROR_MESSAGE
+                });
+            }
+
             var report = await _repConstructorService.GetFullIncomeReport(User.GetUserId(), dateFrom, dateTo);
-            return Ok(report);
+            var reportDto = _mapper.Map<IncomeReportDto>(report);
+            
+            return Ok(new Response<IncomeReportDto>
+            {
+                Data = reportDto,
+                ErrorCode = null,
+                ErrorMessage = null,
+                IsSuccessful = true
+            });
         }
 
         [Route("Outcome")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<OutcomeReport>>> GetOutcomeReport([FromQuery] DateTime dateFrom, [FromQuery] DateTime dateTo)
+        public async Task<ActionResult<OutcomeReportDto>> GetOutcomeReport([FromQuery] DateTime dateFrom, [FromQuery] DateTime dateTo)
         {
+            if (dateFrom >= dateTo)
+            {
+                return BadRequest(new Response<OutcomeReportDto>
+                {
+                    Data = null,
+                    ErrorCode = HttpStatusCode.BadRequest.ToString(),
+                    IsSuccessful = false,
+                    ErrorMessage = ERROR_MESSAGE
+                });
+            }
+
             var report = await _repConstructorService.GetFullOutcomeReport(User.GetUserId(), dateFrom, dateTo);
-            return Ok(report);
+            var reportDto = _mapper.Map<OutcomeReportDto>(report);
+            return Ok(new Response<OutcomeReportDto> 
+            {
+                Data = reportDto,
+                ErrorCode = null,
+                ErrorMessage = null,
+                IsSuccessful = true
+            });
         }
     }
 }

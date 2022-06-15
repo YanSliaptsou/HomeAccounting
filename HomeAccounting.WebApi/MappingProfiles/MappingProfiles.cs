@@ -12,6 +12,10 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using HomeAccounting.Domain.Enums;
+using HomeAccounting.Domain.Models.Entities.Reports;
+using HomeAccounting.WebApi.DTOs.ReportDto;
+using HomeAccounting.WebApi.DTOs.ReportDto.Income;
+using HomeAccounting.WebApi.DTOs.ReportDto.Outcome;
 
 namespace HomeAccounting.WebApi.MappingProfiles
 {
@@ -32,6 +36,10 @@ namespace HomeAccounting.WebApi.MappingProfiles
                 .ForMember(x => x.AccountTo, x => x.Ignore())
                 .ForMember(x => x.User, x => x.Ignore())
                 .ForMember(x => x.UserId, x => x.Ignore());
+            CreateMap<AccountReport, AccountReportDto>();
+            CreateMap<IncomeReport, IncomeReportDto>();
+            CreateMap<OutcomeReport, OutcomeReportDto>();
+            CreateMap<OutcomeCategoryReport, OutcomeCategoryReportDto>();
         }
     }
 }

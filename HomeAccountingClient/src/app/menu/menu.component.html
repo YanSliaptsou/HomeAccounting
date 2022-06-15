@@ -5,7 +5,7 @@
      <li><a routerLink="/parent-categories">My categories</a></li>
      <li><a routerLink="/accounts">My accounts</a></li>
      <li><a routerLink="/ledgers">My transactions</a></li>
-     <li><a href="#">My reports</a></li>
+     <li><a routerLink="/reports">My reports</a></li>
      <li *ngIf="!isUserAuthenticated"><a routerLink="/authentication/login">Login</a></li>
      <li *ngIf="!isUserAuthenticated"><a routerLink="/authentication/register">Register</a></li>
      <li *ngIf="isUserAuthenticated"><a routerLink="" (click)="logout()">Logout</a></li>

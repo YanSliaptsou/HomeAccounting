@@ -19,11 +19,13 @@ namespace HomeAccounting.WebApi.Controllers
     {
         private readonly IAccountService _accountService;
         private readonly IAccountRepository _accountRepository;
+        private readonly ICategoryService _categoryService;
 
-        public AccountsController(IAccountService accountService, IAccountRepository accountRepository)
+        public AccountsController(IAccountService accountService, IAccountRepository accountRepository, ICategoryService categoryService)
         {
             _accountService = accountService;
             _accountRepository = accountRepository;
+            _categoryService = categoryService;
         }
 
         [Route("{type}")]

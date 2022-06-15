@@ -1,0 +1,54 @@
+<div class="card">
+    <div class="card-body">
+        <form [formGroup]="reportForm"  autocomplete="off" novalidate>
+            <div class="row">
+                <label for="dateTime">Date from:</label>
+                <div class="col-md-2">
+                    <input formControlName="dateFrom" placeholder="Date from" id="dateFrom"  type="datetime" class="form-control" bsDatepicker/>
+                </div>
+                <label for="dateTime" >Date to:</label>
+                <div class="col-md-2">
+                    <input formControlName="dateTo" placeholder="Date to" id="dateTo" type="datetime" class="form-control" bsDatepicker/>
+                </div>
+                <div>
+                    <button type="submit" (click)="getIncomeReport(reportForm.value)" [disabled]="!reportForm.valid" class="btn btn-info">Get report</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div> 
+
+<table *ngIf="incomeReport.totalSum !== 0 && incomeReport.totalSum !== null" class="table mt-2">
+    <thead>
+        <tr>
+            <th scope="col">Income account name</th>
+            <th scope="col">Sum in account's currency</th>
+            <th scope="col">Sum in user's currency</th>
+            <th scope="col">Percentage % of whole sum</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let account of incomeReport.incomeAccountReports">
+            <td>{{account.accountName}}</td>
+            <td>{{account.sumInLocalCurrency}} {{account.localCurrencyCode}}</td>
+            <td>{{account.sumInUsersCurrency}} {{account.usersCurrencyCode}}</td>
+            <td>{{account.percentage}}</td>
+        </tr>
+    </tbody>
+</table>
+
+<br>
+
+<table *ngIf="incomeReport.totalSum !== 0 && incomeReport.totalSum !== null" class="table mt-2">
+    <thead>
+        <th scope="col">Total Sum</th>
+        <th>{{incomeReport.totalSum}} {{incomeReport.currency}}</th>
+    </thead>
+</table>
+
+<div *ngIf="incomeReport.totalSum == 0">
+    <alert type="danger">
+        You don't have any income transaction during this period
+    </alert>
+</div>
+

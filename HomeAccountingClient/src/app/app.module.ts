@@ -24,6 +24,10 @@ import { BsDatepickerModule } from 'ngx-bootstrap/datepicker'
 import { AccountsComponent } from './accounts/accounts.component';
 import { CommonModule } from '@angular/common';
 import { LedgersComponent } from './ledgers/ledgers.component';
+import { ReportComponentComponent } from './reports/report-component/report-component.component';
+import { IncomeReportComponent } from './reports/income-report/income-report.component';
+import { OutcomeReportComponent } from './reports/outcome-report/outcome-report.component';
+import { AlertModule } from 'ngx-bootstrap/alert'
 
 export function tokenGetter() {
   return localStorage.getItem("token");
@@ -39,6 +43,9 @@ export function tokenGetter() {
     ParentCategoriesComponent,
     AccountsComponent,
     LedgersComponent,
+    ReportComponentComponent,
+    IncomeReportComponent,
+    OutcomeReportComponent,
   ],
   imports: [
     JwtModule.forRoot({
@@ -58,6 +65,7 @@ export function tokenGetter() {
     FormsModule,
     CommonModule,
     ProgressbarModule.forRoot(),
+    AlertModule.forRoot(),
     RouterModule.forRoot([
       { path: 'home', component: HomeComponent, canActivate:[AuthGuard] },
       { path: '404', component: NotfoundComponent},
@@ -65,6 +73,7 @@ export function tokenGetter() {
       { path: 'parent-categories', component: ParentCategoriesComponent, canActivate: [AuthGuard]},
       { path: 'accounts', component: AccountsComponent, canActivate: [AuthGuard]},
       { path: 'ledgers', component: LedgersComponent, canActivate: [AuthGuard]},
+      { path: 'reports', component : ReportComponentComponent, canActivate: [AuthGuard]},
       { path: '', redirectTo: '/home', pathMatch: 'full' },
       { path: '**', redirectTo: '/404', pathMatch: 'full'}
     ]),
