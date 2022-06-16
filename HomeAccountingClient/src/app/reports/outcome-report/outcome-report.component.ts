@@ -1,8 +1,10 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { ChartService } from 'src/app/shared/services/chart.service';
 import { ReportService } from 'src/app/shared/services/report.service';
 import { OutcomeReportDto } from 'src/app/_interfaces/Report/Outcome/OutcomeReportDto';
+import { ReportChartDataType } from 'src/app/_interfaces/Report/ReportChartData';
 
 @Component({
   selector: 'app-outcome-report',
@@ -12,7 +14,7 @@ import { OutcomeReportDto } from 'src/app/_interfaces/Report/Outcome/OutcomeRepo
 })
 export class OutcomeReportComponent implements OnInit {
 
-  constructor(private reportService : ReportService, public datepipe: DatePipe) { }
+  constructor(private reportService : ReportService, public datepipe: DatePipe, private chartService : ChartService) { }
 
   outcomeReport : OutcomeReportDto = {
     currency : null,
@@ -39,7 +41,8 @@ export class OutcomeReportComponent implements OnInit {
 
     this.reportService.getOutcome(dateFrom, dateTo).subscribe((response : any) => {
       this.outcomeReport = response.data;
-      console.log(this.outcomeReport);
+      this.chartService.buildChart(ReportChartDataType.OutcomeByAccounts,null,this.outcomeReport,this.outcomeReport.currency);
+      this.chartService.buildChart(ReportChartDataType.OutcomeByCategories,null,this.outcomeReport, this.outcomeReport.currency);
     }, error => {
 
     })

@@ -4,7 +4,10 @@ import { FormGroup } from '@angular/forms';
 import { ReportService } from 'src/app/shared/services/report.service';
 import { IncomeReportDto } from 'src/app/_interfaces/Report/Income/IncomeReportDto';
 import {Chart} from 'chart.js'
-
+import { ReportChartDataType } from 'src/app/_interfaces/Report/ReportChartData';
+import { ChartService } from 'src/app/shared/services/chart.service';
+import { OutcomeReportDto } from 'src/app/_interfaces/Report/Outcome/OutcomeReportDto';
+declare var google : any;
 @Component({
   selector: 'app-income-report',
   templateUrl: './income-report.component.html',
@@ -13,7 +16,7 @@ import {Chart} from 'chart.js'
 })
 export class IncomeReportComponent implements OnInit {
 
-  constructor(private reportService : ReportService, public datepipe: DatePipe) { }
+  constructor(private reportService : ReportService, public datepipe: DatePipe, private chartService : ChartService) { }
 
   incomeReport : IncomeReportDto = {
     currency : null,
@@ -25,6 +28,7 @@ export class IncomeReportComponent implements OnInit {
   reportForm : FormGroup;
 
   ngOnInit(): void {
+    google.charts.load('current', {packages: ['corechart']});
     this.reportForm = this.reportService.initReportForm();
   }
 
@@ -39,6 +43,7 @@ export class IncomeReportComponent implements OnInit {
 
     this.reportService.getIncome(dateFrom, dateTo).subscribe((response : any) => {
       this.incomeReport = response.data;
+      this.chartService.buildChart(ReportChartDataType.IncomeByAccounts,this.incomeReport,null,this.incomeReport.currency)
     }, error => {
 
     })
