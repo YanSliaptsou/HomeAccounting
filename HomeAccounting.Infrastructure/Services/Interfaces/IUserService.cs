@@ -5,11 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HomeAccounting.Domain.Repositories.Interfaces
+namespace HomeAccounting.Infrastructure.Services.Interfaces
 {
-    public interface IUserRepository
+    public interface IUserService
     {
-        Task<IEnumerable<AppUser>> GetUsersList();
         Task<AppUser> GetConcreteUser(string userId);
         Task EditUser(AppUser appUser, string userToEditId);
     }

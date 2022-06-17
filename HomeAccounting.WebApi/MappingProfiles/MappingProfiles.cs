@@ -16,6 +16,7 @@ using HomeAccounting.Domain.Models.Entities.Reports;
 using HomeAccounting.WebApi.DTOs.ReportDto;
 using HomeAccounting.WebApi.DTOs.ReportDto.Income;
 using HomeAccounting.WebApi.DTOs.ReportDto.Outcome;
+using HomeAccounting.WebApi.DTOs.UserDto;
 
 namespace HomeAccounting.WebApi.MappingProfiles
 {
@@ -40,6 +41,23 @@ namespace HomeAccounting.WebApi.MappingProfiles
             CreateMap<IncomeReport, IncomeReportDto>();
             CreateMap<OutcomeReport, OutcomeReportDto>();
             CreateMap<OutcomeCategoryReport, OutcomeCategoryReportDto>();
+            CreateMap<AppUser, UserResponseDto>();
+            CreateMap<UserRequestDto, AppUser>()
+                .ForMember(x => x.AccessFailedCount, x => x.Ignore())
+                .ForMember(x => x.ConcurrencyStamp, x => x.Ignore())
+                .ForMember(x => x.Email, x => x.Ignore())
+                .ForMember(x => x.EmailConfirmed, x => x.Ignore())
+                .ForMember(x => x.Id, x => x.Ignore())
+                .ForMember(x => x.LockoutEnabled, x => x.Ignore())
+                .ForMember(x => x.LockoutEnd, x => x.Ignore())
+                .ForMember(x => x.MainCurrency, x => x.Ignore())
+                .ForMember(x => x.NormalizedEmail, x => x.Ignore())
+                .ForMember(x => x.NormalizedUserName, x => x.Ignore())
+                .ForMember(x => x.PasswordHash, x => x.Ignore())
+                .ForMember(x => x.PhoneNumber, x => x.Ignore())
+                .ForMember(x => x.PhoneNumberConfirmed, x => x.Ignore())
+                .ForMember(x => x.SecurityStamp, x => x.Ignore())
+                .ForMember(x => x.TwoFactorEnabled, x => x.Ignore());
         }
     }
 }

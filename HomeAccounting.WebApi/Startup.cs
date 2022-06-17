@@ -85,6 +85,7 @@ namespace HomeAccounting.WebApi
             services.AddTransient<IRepCalculatorService, RepCalculatorService>();
             services.AddTransient<IRepConstructorService, RepConstructorService>();
             services.AddTransient<IRepItemsService, RepItemsService>();
+            services.AddTransient<IUserService, UserService>();
             services.AddAutoMapper(typeof(MappingProfiles.MappingProfiles).Assembly);
             services.AddCors();
 

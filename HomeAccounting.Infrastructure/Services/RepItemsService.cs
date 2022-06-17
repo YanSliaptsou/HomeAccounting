@@ -45,7 +45,7 @@ namespace HomeAccounting.Infrastructure.Services
 
             AccountReport incomeAccountReport = new AccountReport
             {
-                Percentage = percentage,
+                Percentage = Math.Round(percentage, 2),
                 SumInLocalCurrency = Math.Round(sumInLocalCurrency, 2),
                 AccountName = account.Name,
                 LocalCurrencyCode = account.CurrencyId,
@@ -77,8 +77,8 @@ namespace HomeAccounting.Infrastructure.Services
 
             OutcomeCategoryReport outcomeCategoryReport = new OutcomeCategoryReport
             {
-                Percentage = percentage,
-                TotalSum = totalSum,
+                Percentage = Math.Round(percentage, 2),
+                TotalSum = Math.Round(totalSum, 2),
                 OutcomeAccountsReports = outcomeAccountReports,
                 CategoryName = category.Name,
                 Currency = user.MainCurrencyId

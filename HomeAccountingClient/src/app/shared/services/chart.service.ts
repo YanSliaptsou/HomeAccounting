@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { AccountReportDto } from 'src/app/_interfaces/Report/AccountReportDto';
 import { IncomeReportDto } from 'src/app/_interfaces/Report/Income/IncomeReportDto';
 import { OutcomeReportDto } from 'src/app/_interfaces/Report/Outcome/OutcomeReportDto';
 import { ReportChartData, ReportChartDataType } from 'src/app/_interfaces/Report/ReportChartData';

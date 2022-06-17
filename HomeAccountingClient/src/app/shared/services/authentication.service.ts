@@ -5,12 +5,14 @@ import { RegistrationResponseDto } from 'src/app/_interfaces/RegistrationRespons
 import { UserForAuthenticationDto } from 'src/app/_interfaces/userForAuthenticationDto';
 import { UserForRegistrationDto } from 'src/app/_interfaces/UserForRegistrationDto';
 import { environment } from 'src/environments/environment';
-import { ReplaySubject, Subject } from 'rxjs';
+import { Observable, ReplaySubject, Subject } from 'rxjs';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { ForgotPasswordDto } from 'src/app/_interfaces/ForgotPassword';
 import { ResetPasswordResponseDto } from 'src/app/_interfaces/ResetPasswordResponseDto';
 import { ResetPasswordDto } from 'src/app/_interfaces/ResetPasswordDto';
 import { CustomEncoder } from '../CustomEncoder';
+import { UserResponseDto } from 'src/app/_interfaces/UsersInterfaces/UserResponseDto';
+import { UserRequestDto } from 'src/app/_interfaces/UsersInterfaces/UserRequstDto';
 
 @Injectable({
   providedIn: 'root'
@@ -64,5 +66,13 @@ export class AuthenticationService {
     params = params.append('email', email);
     console.log(params);
     return this.http.post(this.createCompleteRoute(route, this.baseUrl) + "?email=" + email + "&token=" + token, null);
+  }
+
+  public getUser() : Observable<UserResponseDto>{
+    return this.http.get<UserResponseDto>(this.baseUrl + '/api/users-accounts');
+  }
+
+  public editUser(user : UserRequestDto){
+    return this.http.post(this.baseUrl + '/api/users-accounts/edit', user);
   }
 }

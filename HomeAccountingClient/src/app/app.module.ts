@@ -27,7 +27,8 @@ import { LedgersComponent } from './ledgers/ledgers.component';
 import { ReportComponentComponent } from './reports/report-component/report-component.component';
 import { IncomeReportComponent } from './reports/income-report/income-report.component';
 import { OutcomeReportComponent } from './reports/outcome-report/outcome-report.component';
-import { AlertModule } from 'ngx-bootstrap/alert'
+import { AlertModule } from 'ngx-bootstrap/alert';
+import { UserSettingsComponent } from './user-settings/user-settings.component'
 
 export function tokenGetter() {
   return localStorage.getItem("token");
@@ -46,6 +47,7 @@ export function tokenGetter() {
     ReportComponentComponent,
     IncomeReportComponent,
     OutcomeReportComponent,
+    UserSettingsComponent,
   ],
   imports: [
     JwtModule.forRoot({
@@ -74,6 +76,7 @@ export function tokenGetter() {
       { path: 'accounts', component: AccountsComponent, canActivate: [AuthGuard]},
       { path: 'ledgers', component: LedgersComponent, canActivate: [AuthGuard]},
       { path: 'reports', component : ReportComponentComponent, canActivate: [AuthGuard]},
+      { path: 'user-settings', component: UserSettingsComponent, canActivate : [AuthGuard]},
       { path: '', redirectTo: '/home', pathMatch: 'full' },
       { path: '**', redirectTo: '/404', pathMatch: 'full'}
     ]),

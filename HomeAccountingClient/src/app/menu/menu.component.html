@@ -9,4 +9,5 @@
      <li *ngIf="!isUserAuthenticated"><a routerLink="/authentication/login">Login</a></li>
      <li *ngIf="!isUserAuthenticated"><a routerLink="/authentication/register">Register</a></li>
      <li *ngIf="isUserAuthenticated"><a routerLink="" (click)="logout()">Logout</a></li>
+     <li *ngIf="isUserAuthenticated && (appUser !== null || appUser !== undefined)"><a routerLink="/user-settings">{{appUser.userName}}</a></li>
   </ul>

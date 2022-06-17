@@ -37,7 +37,7 @@
         <tr *ngFor="let category of outcomeReport.categoriesReport">
             <td>{{category.categoryName}}</td>
             <td>{{category.totalSum}} {{category.currency}}</td>
-            <td>{{category.percentage}}</td>
+            <td>{{category.percentage}} %</td>
             <td><table>
                 <thead>
                     <tr>
@@ -52,7 +52,7 @@
                         <td>{{account.accountName}}</td>
                         <td>{{account.sumInLocalCurrency}} {{account.localCurrencyCode}}</td>
                         <td>{{account.sumInUsersCurrency}} {{account.usersCurrencyCode}}</td>
-                        <td>{{account.percentage}}</td>
+                        <td>{{account.percentage}} %</td>
                     </tr>
                 </tbody>
             </table></td>

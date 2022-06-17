@@ -1,11 +1,17 @@
 ﻿using AutoMapper;
 using HomeAccounting.Domain.Models;
+using HomeAccounting.Infrastructure.Extensions;
 using HomeAccounting.Infrastructure.Helpers;
 using HomeAccounting.Infrastructure.Services.Abstract;
+using HomeAccounting.Infrastructure.Services.Interfaces;
 using HomeAccounting.WebApi.Controllers.BaseController;
+using HomeAccounting.WebApi.DTOs;
 using HomeAccounting.WebApi.DTOs.AuthentificationDTOs;
 using HomeAccounting.WebApi.DTOs.RegistrationDTOs;
+using HomeAccounting.WebApi.DTOs.UserDto;
 using HomeAccounting.WebApi.DTOs.WorkingWithPasswordsDTOs;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
@@ -13,6 +19,7 @@ using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace HomeAccounting.WebApi.Controllers
@@ -25,13 +32,15 @@ namespace HomeAccounting.WebApi.Controllers
         private readonly ITokenService _tokenService;
         private readonly IEmailSender _emailSender;
         private readonly IConfiguration _configuration;
-        public UsersAccountsController(UserManager<AppUser> userManager, IMapper mapper, ITokenService tokenService, IEmailSender emailSender, IConfiguration configuration)
+        private readonly IUserService _userService;
+        public UsersAccountsController(UserManager<AppUser> userManager, IMapper mapper, ITokenService tokenService, IEmailSender emailSender, IConfiguration configuration, IUserService userService)
         {
             _userManager = userManager;
             _mapper = mapper;
             _tokenService = tokenService;
             _emailSender = emailSender;
             _configuration = configuration;
+            _userService = userService;
         }
 
         [HttpPost("Register")]
@@ -137,6 +146,49 @@ namespace HomeAccounting.WebApi.Controllers
             if (!confirmResult.Succeeded)
                 return BadRequest("Invalid token");
             return Ok();
+        }
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpGet]
+        public async Task<ActionResult<UserResponseDto>> GetConcreteUser()
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+
+            var userDto = _mapper.Map<UserResponseDto>(user);
+
+            if (user == null)
+            {
+                return BadRequest(new Response<UserResponseDto>
+                {
+                    Data = null,
+                    IsSuccessful = false,
+                    ErrorCode = HttpStatusCode.BadRequest.ToString(),
+                    ErrorMessage = "Such user does not exist"
+                });
+            }
+
+            return Ok(new Response<UserResponseDto>
+            {
+                Data = userDto,
+                IsSuccessful = true,
+                ErrorCode = null,
+                ErrorMessage = null
+            });
+        }
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Route("edit")]
+        [HttpPost]
+        public async Task<ActionResult> EditUSer(UserRequestDto userRequest)
+        {
+            var userId = User.GetUserId();
+
+            var user = _mapper.Map<AppUser>(userRequest);
+
+            await _userService.EditUser(user, userId);
+
+            return Ok(userRequest);
         }
 
 
