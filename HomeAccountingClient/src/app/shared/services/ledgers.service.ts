@@ -26,9 +26,9 @@ export class LedgersService {
 
   constructor(private http : HttpClient) { }
 
-  getLedgers(type : number = null, accountFromId : number = null, accountToId : number = null) : Observable<LedgerResponseDto[]>{
+  getLedgers(accountId : number = null, dateFrom : string = null, dateTo : string = null) : Observable<LedgerResponseDto[]>{
 
-    var queryString = this.buildQueryString(type,accountFromId,accountToId);
+    var queryString = this.buildQueryString(accountId,dateFrom,dateTo);
 
     return this.http.get<LedgerResponseDto[]>(this.ledgersUrl + queryString);
   }
@@ -50,24 +50,34 @@ export class LedgersService {
     return this.http.delete<any>(this.ledgersUrl + '/' + id);
   }
 
-  private buildQueryString(type : number = null, accountFromId : number = null, accountToId : number = null) : string {
+  private buildQueryString(accountId : number = null, dateFrom : string = null, dateTo : string = null) : string {
     
     var finalString = ""
 
-    if (type !== null){
-      finalString += "?type=" + type
+    if (accountId !== null){
+      finalString += "?accountId=" + accountId
     }
 
-    if (accountFromId !== null){
-      finalString += "&accountFromId=" + accountFromId
+    if (dateFrom !== null){
+      finalString += "&dateFrom=" + dateFrom
     }
 
-    if (accountToId !== null){
-      finalString += "&accountToId=" + accountToId
+    if (dateTo !== null){
+      finalString += "&dateTo=" + dateTo
     }
 
     return finalString;
 
+  }
+
+  initLedgerReportForm() : FormGroup {
+    var ledgerReportForm = new FormGroup({
+      accountId : new FormControl("", [Validators.required]),
+      dateFrom : new FormControl("", [Validators.required]),
+      dateTo : new FormControl("", [Validators.required])
+    });
+
+    return ledgerReportForm;
   }
 
   initLedgerForm() : FormGroup{

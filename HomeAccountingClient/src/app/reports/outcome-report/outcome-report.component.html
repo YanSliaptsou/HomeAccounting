@@ -1,22 +1,35 @@
 <div class="card">
     <div class="card-body">
+        <h2 class="card-title">Outcome report</h2>
         <form [formGroup]="reportForm"  autocomplete="off" novalidate>
-            <div class="row">
-                <label for="dateTime">Date from:</label>
-                <div class="col-md-2">
+            <div class="row ml-1">
+                <label class="mt-2" for="dateTime">Date from:</label>
+                <div class="col-md-2 mt-2">
                     <input formControlName="dateFrom" placeholder="Date from" id="dateFrom"  type="datetime" class="form-control" bsDatepicker/>
                 </div>
-                <label for="dateTime" >Date to:</label>
-                <div class="col-md-2">
+                <label class="mt-2" for="dateTime" >Date to:</label>
+                <div class="col-md-2 mt-2">
                     <input formControlName="dateTo" placeholder="Date to" id="dateTo" type="datetime" class="form-control" bsDatepicker/>
                 </div>
-                <div>
+                <div class="mt-2 ml-3">
                     <button type="submit" (click)="getOutcomeReport(reportForm.value)" [disabled]="!reportForm.valid" class="btn btn-info">Get report</button>
                 </div>
             </div>
         </form>
     </div>
 </div> 
+
+<div *ngIf="outcomeReport.totalSum == 0">
+    <alert type="warning">
+        You don't have any outcome transaction during this period
+    </alert>
+</div>
+
+<div *ngIf="isError">
+    <alert type="danger">
+        {{errorMessage}}
+    </alert>
+</div>
 
 <div class="row">
     <div id="outcomeAccountsChart"></div>
@@ -66,9 +79,3 @@
         <th>{{outcomeReport.totalSum}} {{outcomeReport.currency}}</th>
     </thead>
 </table>
-
-<div *ngIf="outcomeReport.totalSum == 0">
-    <alert type="danger">
-        You don't have any outcome transaction during this period
-    </alert>
-</div>

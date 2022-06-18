@@ -22,7 +22,7 @@ import { TabsModule } from 'ngx-bootstrap/tabs'
 import { ProgressbarModule } from 'ngx-bootstrap/progressbar'
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker'
 import { AccountsComponent } from './accounts/accounts.component';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { LedgersComponent } from './ledgers/ledgers.component';
 import { ReportComponentComponent } from './reports/report-component/report-component.component';
 import { IncomeReportComponent } from './reports/income-report/income-report.component';
@@ -86,7 +86,7 @@ export function tokenGetter() {
 
   providers: [{provide: HTTP_INTERCEPTORS, useClass: ErrorHandlerService,multi: true},
               {provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true},
-              {provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi: true}],
+              {provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi: true}, DatePipe],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

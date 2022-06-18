@@ -7,6 +7,7 @@ import {Chart} from 'chart.js'
 import { ReportChartDataType } from 'src/app/_interfaces/Report/ReportChartData';
 import { ChartService } from 'src/app/shared/services/chart.service';
 import { OutcomeReportDto } from 'src/app/_interfaces/Report/Outcome/OutcomeReportDto';
+import { DateEnum, DateTimeService } from 'src/app/shared/services/date-time.service';
 declare var google : any;
 @Component({
   selector: 'app-income-report',
@@ -16,7 +17,8 @@ declare var google : any;
 })
 export class IncomeReportComponent implements OnInit {
 
-  constructor(private reportService : ReportService, public datepipe: DatePipe, private chartService : ChartService) { }
+  constructor(private reportService : ReportService, public datepipe: DatePipe, private chartService : ChartService,
+    private dateService : DateTimeService) { }
 
   incomeReport : IncomeReportDto = {
     currency : null,
@@ -26,6 +28,8 @@ export class IncomeReportComponent implements OnInit {
   dateFrom : Date;
   dateTo : Date;
   reportForm : FormGroup;
+  isError = false;
+  errorMessage = "";
 
   ngOnInit(): void {
     google.charts.load('current', {packages: ['corechart']});
@@ -33,19 +37,21 @@ export class IncomeReportComponent implements OnInit {
   }
 
   getIncomeReport(report : any){
+    this.isError = false;
     var reportForm = {... report};
     this.dateFrom = reportForm.dateFrom;
     this.dateTo = reportForm.dateTo;
 
-    let dateFrom = this.datepipe.transform(this.dateFrom, 'YYYY-MM-dd') +'T00:00:00.179'; //this.datepipe.transform(this.dateFrom, 'yyyy-mm-dd');
-    let dateTo = this.datepipe.transform(this.dateTo, 'YYYY-MM-dd') + 'T23:59:59.179';
+    let dateFrom = this.dateService.convertDate(this.dateFrom, DateEnum.DateFrom) 
+    let dateTo = this.dateService.convertDate(this.dateTo, DateEnum.DateTo)
 
 
     this.reportService.getIncome(dateFrom, dateTo).subscribe((response : any) => {
       this.incomeReport = response.data;
       this.chartService.buildChart(ReportChartDataType.IncomeByAccounts,this.incomeReport,null,this.incomeReport.currency)
     }, error => {
-
+      this.isError = true;
+      this.errorMessage = error.errorMessage;
     })
   }
 }

@@ -10,7 +10,7 @@ namespace HomeAccounting.Infrastructure.Services.Interfaces
 {
     public interface ILegderService
     {
-        Task<IEnumerable<Ledger>> GetLedgers(string userId, LedgerType? type = null, int? accountFromId = null, int? accountToId = null);
+        Task<IEnumerable<Ledger>> GetLedgers(int accountId, DateTime dateFrom, DateTime dateTo);
         Task<Ledger> GetConcreteLedger(int ledgerId);
         Task CreateLegder(Ledger ledger);
         Task EditLegder(int legderId, Ledger ledgerToEdit);

@@ -24,7 +24,7 @@ namespace HomeAccounting.WebApi.Controllers
         private readonly ILegderService _legderService;
         private const string ERROR_MESSAGE_ON_CREATE = "Invalid model. Not all field are inputed validely.";
         private const string ERROR_MESSAGE_ON_GET = "Such ledger does not exist.";
-
+        private const string ERROR_MESSAGE_ON_LEDGER_REPORT = "Date to is less than date from";
         public LedgersController(IMapper mapper, ILegderService legderService)
         {
             _mapper = mapper;
@@ -57,12 +57,27 @@ namespace HomeAccounting.WebApi.Controllers
             }
         }
 
-        [HttpGet]
+        /*[HttpGet]
         public async Task<ActionResult<IEnumerable<LedgerResponseDto>>> GetLedgers([FromQuery] LedgerType? type, 
             [FromQuery] int? accountFromId, [FromQuery] int? accountToId)
         {
             var legders = await _legderService.GetLedgers(User.GetUserId(), type, accountFromId, accountToId);
             var newLedgers = _mapper.Map<IEnumerable<LedgerResponseDto>>(legders);
+
+            return Ok(new Response<IEnumerable<LedgerResponseDto>> {Data = newLedgers, IsSuccessful = true, ErrorCode = null, ErrorMessage = null });
+        }*/
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<LedgerResponseDto>>> GetLedgers([FromQuery] int accountId, [FromQuery] DateTime dateFrom,
+            [FromQuery] DateTime dateTo)
+        {
+            var ledgers = await _legderService.GetLedgers(accountId, dateFrom, dateTo);
+            var newLedgers = _mapper.Map<IEnumerable<LedgerResponseDto>>(ledgers);
+
+            if (dateFrom >= dateTo)
+            {
+                return BadRequest(new Response<IEnumerable<LedgerResponseDto>> { Data = null, ErrorCode = HttpStatusCode.BadRequest.ToString(), IsSuccessful = false, ErrorMessage = ERROR_MESSAGE_ON_LEDGER_REPORT });
+            }
 
             return Ok(new Response<IEnumerable<LedgerResponseDto>> {Data = newLedgers, IsSuccessful = true, ErrorCode = null, ErrorMessage = null });
         }

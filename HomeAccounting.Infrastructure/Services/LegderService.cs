@@ -2,6 +2,7 @@
 using HomeAccounting.Domain.Models;
 using HomeAccounting.Domain.Repositories.Interfaces;
 using HomeAccounting.Infrastructure.Services.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -36,28 +37,9 @@ namespace HomeAccounting.Infrastructure.Services
             return await _legderRepository.GetConcreteLedger(ledgerId);
         }
 
-        public async Task<IEnumerable<Ledger>> GetLedgers(string userId, LedgerType? type = null, int? accountFromId = null, int? accountToId = null)
+        public async Task<IEnumerable<Ledger>> GetLedgers(int accountId, DateTime dateFrom, DateTime dateTo)
         {
-            if (type != null)
-            {
-                return await _legderRepository.GetAllLegdersByType((LedgerType)type, userId);
-            }
-            else if (accountFromId != null && accountToId != null)
-            {
-                return await _legderRepository.GetAllLegdersByBothAccounts((int)accountFromId, (int)accountToId);
-            }
-            else if (accountFromId != null)
-            {
-                return await _legderRepository.GetAllLegdersByAccountFrom((int)accountFromId);
-            }
-            else if (accountToId != null)
-            {
-                return await _legderRepository.GetAllLegdersByAccountTo((int)accountToId);
-            }
-            else
-            {
-                return await _legderRepository.GetAllLegders(userId);
-            }
+            return await _legderRepository.GetLedgersByAccount(accountId, dateFrom, dateTo);
         }
     }
 }

@@ -3,11 +3,10 @@ import { AfterContentChecked, Component, OnInit, TemplateRef } from '@angular/co
 import { FormGroup } from '@angular/forms';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { AccountService } from '../shared/services/account.service';
-import { CurrenciesService } from '../shared/services/currencies.service';
+import { DateEnum, DateTimeService } from '../shared/services/date-time.service';
 import { ExchangeRatesService } from '../shared/services/exchange-rates.service';
 import { LedgersService } from '../shared/services/ledgers.service';
 import { AccountReceiveDto } from '../_interfaces/Account/AccountReceiveDto';
-import { AccountSendDto } from '../_interfaces/Account/AccountSendDto';
 import { CurrencyExchangeRate } from '../_interfaces/CurrencyExchangeRate';
 import { LedgerResponseDto } from '../_interfaces/Legder/LedgerResponseDto';
 import { LedgerSendDto } from '../_interfaces/Legder/LegderSendDto';
@@ -46,10 +45,10 @@ export class LedgersComponent implements OnInit {
     private accountService : AccountService, 
     private modalService : BsModalService,
     private exchRateServ : ExchangeRatesService,
-    private http : HttpClient) { }
+    private dtService : DateTimeService) { }
   
 
-  ledgers : LedgerResponseDto[];
+  ledgers : LedgerResponseDto[] = null;
   currentLedger : LedgerResponseDto = {
     accountNameFrom : null,
     ammountFrom : null,
@@ -63,29 +62,56 @@ export class LedgersComponent implements OnInit {
     typeString : null
   };
   ledgersForm : FormGroup;
+  ledgersReportForm : FormGroup;
   incomeAccounts : AccountReceiveDto[];
   outcomeAccounts : AccountReceiveDto[];
   placeholder : number = 1;
   currencyFrom : string;
   currencyTo : string;
 
+  accountId : number;
+  dateFrom : Date;
+  dateTo : Date;
+  accountsForReport : AccountReceiveDto[];
+
+  isError = false;
+  errorMessage = "";
+
   ngOnInit(): void {
-    this.loadLedgers();
-    this.ledgersForm = this.ledgService.initLedgerForm()
-    console.log(this.ledgersForm.valid)
-    this.http.get<any>('https://localhost:5001/api/reports/income?dateFrom=2022-06-01T09:23:07.179&dateTo=2022-06-30T09:23:07.179')
-    .subscribe((resp) => {
-      console.log(resp);
-    })
+    this.ledgersForm = this.ledgService.initLedgerForm();
+    this.ledgersReportForm = this.ledgService.initLedgerReportForm();
+    this.loadAccountsForReport();
   }
 
-  loadLedgers(){
-    this.ledgService.getLedgers().subscribe((response : any) => {
+  loadLedgers(ledgerForm : any, accId? : number, dtFrom? : Date, dtTo? : Date){
+
+    this.isError = false;
+    if (ledgerForm !== null){
+    var ledgerReportForm = {... ledgerForm}
+
+    this.accountId = ledgerReportForm.accountId;
+    this.dateFrom = ledgerForm.dateFrom;
+    this.dateTo = ledgerForm.dateTo;
+    }
+    else
+    {
+      this.accountId = accId;
+      this.dateFrom = dtFrom;
+      this.dateTo = dtTo;
+    }
+
+    let dateFrom = this.dtService.convertDate(this.dateFrom, DateEnum.DateFrom);
+    let dateTo = this.dtService.convertDate(this.dateTo, DateEnum.DateTo);
+
+    this.ledgService.getLedgers(this.accountId, dateFrom, dateTo).subscribe((response : any) => {
       this.ledgers = response.data;
       console.log(this.ledgers);
       for(let ledger of this.ledgers){
         this.ledgService.resolveTransType(ledger);
       }
+    }, error => {
+      this.isError = true;
+      this.errorMessage = error.errorMessage;
     })
   }
 
@@ -95,6 +121,12 @@ export class LedgersComponent implements OnInit {
       this.currencyExchangeRate = response.data;
       console.log(this.currencyExchangeRate);
       this.placeholder = valueOfStr * this.currencyExchangeRate.exchangeRateValue as number;
+    })
+  }
+
+  loadAccountsForReport(){
+    this.accountService.getAccounts(this.INCOME_ACCOUNTS_API).subscribe(response => {
+      this.accountsForReport = response;
     })
   }
 
@@ -133,7 +165,7 @@ export class LedgersComponent implements OnInit {
       dateTime : ledgersForm.dateTime,
     }
     this.ledgService.addLedger(ledger).subscribe((response => {
-      this.loadLedgers();
+
     }), error => {
 
     })
@@ -152,7 +184,7 @@ export class LedgersComponent implements OnInit {
       dateTime : ledgersForm.dateTime,
     }
     this.ledgService.editLedger(ledgerId, ledger).subscribe((response => {
-      this.loadLedgers();
+      this.loadLedgers(null,this.accountId, this.dateFrom, this.dateTo);
       }), error => {
 
       })
@@ -184,7 +216,7 @@ export class LedgersComponent implements OnInit {
   deleteLedger(id : number){
     console.log(id);
     this.ledgService.deleteLedger(id).subscribe((response => {
-      this.loadLedgers();
+      this.loadLedgers(null,this.accountId, this.dateFrom, this.dateTo);
     }), error => {
     })
     this.modalRef?.hide();

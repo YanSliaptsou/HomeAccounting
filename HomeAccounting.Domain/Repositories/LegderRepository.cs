@@ -82,18 +82,6 @@ namespace HomeAccounting.Domain.Repositories
             return legders;
         }
 
-        public async Task<IEnumerable<Ledger>> GetAllLegdersByAccountFrom(int accountFromId)
-        {
-            var legders = await _databaseContext.Ledgers.Where(x => x.AccountFromId == accountFromId).ToListAsync();
-            foreach (var ledger in legders)
-            {
-                ledger.AccountFrom = await _databaseContext.Accounts.FirstOrDefaultAsync(x => x.Id == ledger.AccountFromId);
-                ledger.AccountTo = await _databaseContext.Accounts.FirstOrDefaultAsync(x => x.Id == ledger.AccountToId);
-            }
-
-            return legders;
-        }
-
         public async Task<IEnumerable<Ledger>> GetAllLegdersByAccountTo(int accountToId)
         {
             var legders = await _databaseContext.Ledgers.Where(x => x.AccountToId == accountToId).ToListAsync();
@@ -106,21 +94,28 @@ namespace HomeAccounting.Domain.Repositories
             return legders;
         }
 
-        public async Task<IEnumerable<Ledger>> GetAllLegdersByBothAccounts(int accountFromId, int accountToId)
+        public async Task<Ledger> GetConcreteLedger(int ledgerId)
         {
-            var legders = await _databaseContext.Ledgers.Where(x => x.AccountToId == accountToId && x.AccountFromId == accountFromId).ToListAsync();
-            foreach (var ledger in legders)
+            return await _databaseContext.Ledgers.FirstOrDefaultAsync(x => x.Id == ledgerId);
+        }
+
+        public async Task<IEnumerable<Ledger>> GetLedgersByAccount(int accountId, DateTime dateFrom, DateTime dateTo)
+        {
+            var ledgers = await _databaseContext.Ledgers.Where(x => (x.AccountFromId == accountId || x.AccountToId == accountId) 
+            && (x.DateTime >= dateFrom && x.DateTime <= dateTo)).OrderBy(x => x.DateTime).ToListAsync();
+
+            foreach(var ledger in ledgers)
             {
                 ledger.AccountFrom = await _databaseContext.Accounts.FirstOrDefaultAsync(x => x.Id == ledger.AccountFromId);
                 ledger.AccountTo = await _databaseContext.Accounts.FirstOrDefaultAsync(x => x.Id == ledger.AccountToId);
             }
 
-            return legders;
+            return ledgers;
         }
 
         public async Task<IEnumerable<Ledger>> GetAllLegdersByType(LedgerType type, string userId)
         {
-            var legders = await _databaseContext.Ledgers.Where(x => x.Type == type && x.UserId == userId).ToListAsync();
+            var legders = await _databaseContext.Ledgers.Where(x => x.Type == type && x.UserId == userId).OrderBy(x => x.DateTime).ToListAsync();
             foreach (var ledger in legders)
             {
                 ledger.AccountFrom = await _databaseContext.Accounts.FirstOrDefaultAsync(x => x.Id == ledger.AccountFromId);
@@ -128,11 +123,6 @@ namespace HomeAccounting.Domain.Repositories
             }
 
             return legders;
-        }
-
-        public async Task<Ledger> GetConcreteLedger(int ledgerId)
-        {
-            return await _databaseContext.Ledgers.FirstOrDefaultAsync(x => x.Id == ledgerId);
         }
     }
 }
