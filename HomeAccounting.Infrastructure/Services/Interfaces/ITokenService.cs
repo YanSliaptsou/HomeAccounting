@@ -16,5 +16,6 @@ namespace HomeAccounting.Infrastructure.Services.Abstract
         SigningCredentials GetSigningCredentials();
         List<Claim> GetClaims(IdentityUser user);
         JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims);
+        string GetToken(AppUser user);
     }
 }

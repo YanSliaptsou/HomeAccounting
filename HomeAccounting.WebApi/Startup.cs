@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using HomeAccounting.Infrastructure.Services.Interfaces;
 using HomeAccounting.Infrastructure.Services;
 using System.Text.Json.Serialization;
+using HomeAccounting.Infrastructure.Middleware;
 
 namespace HomeAccounting.WebApi
 {
@@ -86,6 +87,11 @@ namespace HomeAccounting.WebApi
             services.AddTransient<IRepConstructorService, RepConstructorService>();
             services.AddTransient<IRepItemsService, RepItemsService>();
             services.AddTransient<IUserService, UserService>();
+            services.AddTransient<IHTMLTemplateRepository, HTMLTemplateRepository>();
+            services.AddTransient<IEmailBilder, EmailBilder>();
+            services.AddTransient<IHTMLTemplateService, HTMLTemplateService>();
+            services.AddTransient<IQueryParamsService, QueryParamsService>();
+
             services.AddAutoMapper(typeof(MappingProfiles.MappingProfiles).Assembly);
             services.AddCors();
 
@@ -99,7 +105,8 @@ namespace HomeAccounting.WebApi
                 opt.Password.RequireNonAlphanumeric = false;
                 opt.User.RequireUniqueEmail = true;
             })
-                .AddEntityFrameworkStores<DatabaseContext>();
+                .AddEntityFrameworkStores<DatabaseContext>()
+                .AddDefaultTokenProviders();
                 
 
 
@@ -114,6 +121,8 @@ namespace HomeAccounting.WebApi
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseMiddleware<ExceptionMiddleware>();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

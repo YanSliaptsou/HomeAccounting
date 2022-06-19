@@ -13,6 +13,8 @@ namespace HomeAccounting.Infrastructure.Services.Concrete
         private readonly IAccountRepository _accountRepository;
         private readonly IParentTransactionCategoryRepository _parentTransactionCategoryRepository;
         private readonly ITransactionCategoryRepository _transactionCategoryRepository;
+        private const string OUTCOME = "Outcome";
+        private const string INCOME = "Income";
 
         public AccountService(IAccountRepository accountRepository, IParentTransactionCategoryRepository parentTransactionCategoryRepository,
             ITransactionCategoryRepository transactionCategoryRepository)
@@ -22,25 +24,9 @@ namespace HomeAccounting.Infrastructure.Services.Concrete
             _transactionCategoryRepository = transactionCategoryRepository;
         }
 
-        public async Task<string> CreateNameForOutcome(Account account, int categoryId)
-        {
-            if (account.Type == "Outcome")
-            {
-                var subcategory = _transactionCategoryRepository.GetConcreteTransactionCategory(categoryId).Result;
-                string subcategoryName = subcategory.Name;
-
-                var parentCategory = _parentTransactionCategoryRepository.GetParentCategory((int)subcategory.ParentTransactionCategoryId);
-                string parentCategoryName = parentCategory.Result.Name;
-
-                return parentCategoryName + "/" + subcategoryName;
-            }
-
-            return string.Empty;
-        }
-
         public async Task<LedgerType> DefineAccountType(int accountId)
         {
-            return _accountRepository.GetAccountById(accountId).Result.Type == "Income" ? LedgerType.Debet : LedgerType.Credit;
+            return _accountRepository.GetAccountById(accountId).Result.Type == INCOME ? LedgerType.Debet : LedgerType.Credit;
         }
 
         public async Task<List<Account>> GetAccountsListByCategory(int categoryId)

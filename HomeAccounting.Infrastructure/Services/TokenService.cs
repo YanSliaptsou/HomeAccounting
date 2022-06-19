@@ -52,5 +52,15 @@ namespace HomeAccounting.Infrastructure.Services.Concrete
             var secret = new SymmetricSecurityKey(key);
             return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
         }
+
+        public string GetToken(AppUser user)
+        {
+            var signingCredentials = GetSigningCredentials();
+            var claims = GetClaims(user);
+            var tokenOptions = GenerateTokenOptions(signingCredentials, claims);
+            var token = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+
+            return token;
+        }
     }
 }

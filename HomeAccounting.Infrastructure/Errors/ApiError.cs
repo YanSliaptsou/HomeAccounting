@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace HomeAccounting.Infrastructure.Errors
 {
-    public class ApiError
+    public class ApiException : Exception
     {
-        public ApiError(int statusCode, string message = null, string details = null)
+        public ApiException(int statusCode, string message = null, string details = null)
         {
             StatusCode = statusCode;
             Message = message;

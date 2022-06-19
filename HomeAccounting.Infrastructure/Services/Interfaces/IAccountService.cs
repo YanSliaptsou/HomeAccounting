@@ -11,7 +11,6 @@ namespace HomeAccounting.Infrastructure.Services.Abstract
     public interface IAccountService
     {
         Task<bool> IsSuchAccountNameExists(string userId, string name);
-        Task<string> CreateNameForOutcome(Account account, int categoryId);
         Task<LedgerType> DefineAccountType(int accountId);
         Task<List<Account>> GetAccountsListByCategory(int categoryId);
     }
