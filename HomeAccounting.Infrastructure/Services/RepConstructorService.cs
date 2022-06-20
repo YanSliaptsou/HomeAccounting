@@ -33,12 +33,7 @@ namespace HomeAccounting.Infrastructure.Services
             var user = await _userRepository.GetConcreteUser(userId);
             var totalSum = await _repCalculatorService.CalculateTotal(userId, Domain.Enums.LedgerType.Debet, dateFrom, dateTo);
 
-            List<AccountReport> incomeAccountReports = new List<AccountReport>();
-
-            foreach(var account in accounts)
-            {
-                incomeAccountReports.Add(await _repItemsService.GetAccountReport(account.Id, dateFrom, dateTo));
-            }
+            List<AccountReport> incomeAccountReports = await _repItemsService.GetAccountReportListByAccounts(accounts, dateFrom, dateTo);
 
             IncomeReport incomeReport = new IncomeReport
             {
@@ -56,12 +51,7 @@ namespace HomeAccounting.Infrastructure.Services
             var user = await _userRepository.GetConcreteUser(userId);
             var totalSum = await _repCalculatorService.CalculateTotal(userId, Domain.Enums.LedgerType.Credit, dateFrom, dateTo);
 
-            List<OutcomeCategoryReport> outcomeCategoryReports = new List<OutcomeCategoryReport>();
-
-            foreach(var category in categories)
-            {
-                outcomeCategoryReports.Add(await _repItemsService.GetOutcomeCategoryReport(category.Id, dateFrom, dateTo));
-            }
+            List<OutcomeCategoryReport> outcomeCategoryReports = await _repItemsService.GetCategoryReportListByCategory(categories, dateFrom, dateTo);
 
             OutcomeReport outcomeReport = new OutcomeReport
             {

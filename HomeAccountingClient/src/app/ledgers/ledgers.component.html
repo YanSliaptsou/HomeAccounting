@@ -1,6 +1,12 @@
 <div class="card">
     <div class="card-body">
         <h1 class="card-title">Add Transaction</h1>
+        <div *ngIf="isError" class="alert alert-danger" role="alert">
+            <span [innerHTML]="errorMessage"></span>
+          </div>
+        <div *ngIf="isSuccess" class="alert alert-success" role="alert">
+            <span [innerHTML]="successMessage"></span>
+        </div>
         <form [formGroup]="ledgersForm" autocomplete="off" novalidate>
             <div class="mb-3 row">
                 <label for="type" class="col-form-label col-sm-2">Transaction type:</label>
@@ -47,10 +53,10 @@
             </div>
             <br>
             <div class="mb-3 row">
-                <div class="col-md-2">          
+                <div class="col-md-2 mt-2">          
                     <button type="submit" (click)="addLedger(ledgersForm.value)" class="btn btn-info" [disabled]="!isAdding || !ledgersForm.valid">Add transaction</button>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-2 mt-2">
                   <button type="submit" (click)="editLedger(ledgersForm.value, currentLedger.id)" class=" btn btn-warning" [disabled]="!isEditing || !ledgersForm.valid">Edit transaction</button>
                 </div>
             </div>
@@ -116,11 +122,11 @@
             <td style="color: red;" *ngIf="ledger.typeString === 'Credit'"><b>-</b></td>
             <td>{{ledger.dateTime | date}}</td>
             <td><div class="mb-3 row" >
-                <div style="margin-left: 30px; margin-top: 5px;">
-                  <button type="submit" (click)="getLedger(ledger.id)" class=" btn btn-primary">Edit</button>
+                <div class="col-md-2 mt-2 ml-4">
+                  <button style="width: 70px;" type="submit" (click)="getLedger(ledger.id)" class=" btn btn-primary">Edit</button>
                 </div>
-                <div style="margin-left: 30px; margin-top: 5px;">
-                  <button type="submit" (click)="openModalOnDelete(template, ledger.id)" class=" btn btn-danger">Delete</button>
+                <div class="col-md-2 mt-2 ml-4">
+                  <button style="width: 70px;" type="submit" (click)="openModalOnDelete(template, ledger.id)" class=" btn btn-danger">Delete</button>
                 </div>
               </div></td>
         </tr>

@@ -57,16 +57,6 @@ namespace HomeAccounting.WebApi.Controllers
             }
         }
 
-        /*[HttpGet]
-        public async Task<ActionResult<IEnumerable<LedgerResponseDto>>> GetLedgers([FromQuery] LedgerType? type, 
-            [FromQuery] int? accountFromId, [FromQuery] int? accountToId)
-        {
-            var legders = await _legderService.GetLedgers(User.GetUserId(), type, accountFromId, accountToId);
-            var newLedgers = _mapper.Map<IEnumerable<LedgerResponseDto>>(legders);
-
-            return Ok(new Response<IEnumerable<LedgerResponseDto>> {Data = newLedgers, IsSuccessful = true, ErrorCode = null, ErrorMessage = null });
-        }*/
-
         [HttpGet]
         public async Task<ActionResult<IEnumerable<LedgerResponseDto>>> GetLedgers([FromQuery] int accountId, [FromQuery] DateTime dateFrom,
             [FromQuery] DateTime dateTo)

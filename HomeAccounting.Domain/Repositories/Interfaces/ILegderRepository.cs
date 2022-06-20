@@ -12,6 +12,7 @@ namespace HomeAccounting.Domain.Repositories.Interfaces
     {
         Task<IEnumerable<Ledger>> GetAllLegders(string userId);
         Task<IEnumerable<Ledger>> GetAllLegdersByAccountTo(int accountToId);
+        Task<IEnumerable<Ledger>> GetAllLegdersByAccountFrom(int accountFromId);
         Task<IEnumerable<Ledger>> GetLedgersByAccount(int accountId, DateTime dateFrom, DateTime dateTo);
         Task<IEnumerable<Ledger>> GetAllLegdersByType(LedgerType type, string userId);
         Task<Ledger> GetConcreteLedger(int ledgerId);

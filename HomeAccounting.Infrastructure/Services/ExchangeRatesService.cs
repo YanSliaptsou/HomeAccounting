@@ -11,6 +11,8 @@ namespace HomeAccounting.Infrastructure.Services.Concrete
     public class ExchangeRatesService : IExchangeRatesService
     {
         private readonly IExchangeRatesRepository _exchangeRatesRepository;
+        private const decimal EXCHANGE_RATE_CURRENCIES_EQUALS = 1;
+        private const decimal EXCHANGE_RATE_NOT_EXISTS = 0;
         public ExchangeRatesService(IExchangeRatesRepository exchangeRatesRepository)
         {
             _exchangeRatesRepository = exchangeRatesRepository;
@@ -20,10 +22,10 @@ namespace HomeAccounting.Infrastructure.Services.Concrete
         {
             if (currencyFrom == currencyTo)
             {
-                return 1;
+                return EXCHANGE_RATE_CURRENCIES_EQUALS;
             }
 
-            decimal rate = 0;
+            decimal rate = EXCHANGE_RATE_NOT_EXISTS;
             var rates = await _exchangeRatesRepository.GetAllExchaneRates();
             currencyFrom = currencyFrom.ToUpper();
             currencyTo = currencyTo.ToUpper();

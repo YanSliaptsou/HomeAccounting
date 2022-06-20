@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
-using HomeAccounting.Domain.Db;
 using HomeAccounting.Domain.Models;
 using HomeAccounting.Infrastructure.Extensions;
-using HomeAccounting.Infrastructure.Helpers;
 using HomeAccounting.Infrastructure.Services;
 using HomeAccounting.Infrastructure.Services.Abstract;
 using HomeAccounting.Infrastructure.Services.Interfaces;
@@ -16,10 +14,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -215,11 +209,11 @@ namespace HomeAccounting.WebApi.Controllers
         public async Task<ActionResult> EditUSer(UserRequestDto userRequest)
         {
             var user = await _userManager.FindByNameAsync(userRequest.UserName);
-            if (user != null)
+            /*if (user != null)
             {
                 return BadRequest(new Response<AppUser> {Data = null, ErrorCode = HttpStatusCode.BadRequest.ToString(), 
                 ErrorMessage = ERROR_USERNAME_EXISTS, IsSuccessful = false});
-            }
+            }*/
 
             var userId = User.GetUserId();
             var newUser = _mapper.Map<AppUser>(userRequest);

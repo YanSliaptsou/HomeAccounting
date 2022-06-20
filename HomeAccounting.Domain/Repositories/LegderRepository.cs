@@ -94,6 +94,18 @@ namespace HomeAccounting.Domain.Repositories
             return legders;
         }
 
+        public async Task<IEnumerable<Ledger>> GetAllLegdersByAccountFrom(int accountFromId)
+        {
+            var legders = await _databaseContext.Ledgers.Where(x => x.AccountFromId == accountFromId).ToListAsync();
+            foreach (var ledger in legders)
+            {
+                ledger.AccountFrom = await _databaseContext.Accounts.FirstOrDefaultAsync(x => x.Id == ledger.AccountFromId);
+                ledger.AccountTo = await _databaseContext.Accounts.FirstOrDefaultAsync(x => x.Id == ledger.AccountToId);
+            }
+
+            return legders;
+        }
+
         public async Task<Ledger> GetConcreteLedger(int ledgerId)
         {
             return await _databaseContext.Ledgers.FirstOrDefaultAsync(x => x.Id == ledgerId);

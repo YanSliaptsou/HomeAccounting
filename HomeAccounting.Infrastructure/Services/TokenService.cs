@@ -17,20 +17,25 @@ namespace HomeAccounting.Infrastructure.Services.Concrete
     {
         private readonly IConfiguration _configuration;
         private readonly IConfigurationSection _jwtSettings;
+        private const string JWT_SETTINGS_SECTION = "JwtSettings";
+        private const string SECURITY_KEY_SECTION = "securityKey";
+        private const string VALID_ISSUER_SECTION = "validIssuer";
+        private const string VALID_AUDIENCE_SECTION = "validAudience";
+        private const string EXPIRY_IN_MINUTES_SECTION = "expiryInMinutes";
 
         public TokenService(IConfiguration configuration)
         {
             _configuration = configuration;
-            _jwtSettings = _configuration.GetSection("JwtSettings");
+            _jwtSettings = _configuration.GetSection(JWT_SETTINGS_SECTION);
         }
 
         public JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims)
         {
             var tokenOptions = new JwtSecurityToken(
-                issuer: _jwtSettings["validIssuer"],
-                audience: _jwtSettings["validAudience"],
+                issuer: _jwtSettings[VALID_ISSUER_SECTION],
+                audience: _jwtSettings[VALID_AUDIENCE_SECTION],
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(Convert.ToDouble(_jwtSettings["expiryInMinutes"])),
+                expires: DateTime.Now.AddMinutes(Convert.ToDouble(_jwtSettings[EXPIRY_IN_MINUTES_SECTION])),
                 signingCredentials: signingCredentials);
             return tokenOptions;
         }
@@ -48,7 +53,7 @@ namespace HomeAccounting.Infrastructure.Services.Concrete
 
         public SigningCredentials GetSigningCredentials()
         {
-            var key = Encoding.UTF8.GetBytes(_jwtSettings.GetSection("securityKey").Value);
+            var key = Encoding.UTF8.GetBytes(_jwtSettings.GetSection(SECURITY_KEY_SECTION).Value);
             var secret = new SymmetricSecurityKey(key);
             return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
         }

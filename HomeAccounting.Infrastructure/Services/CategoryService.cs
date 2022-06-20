@@ -13,10 +13,32 @@ namespace HomeAccounting.Infrastructure.Services.Concrete
     {
         private readonly ITransactionCategoryRepository _transactionCategoryRepository;
         private readonly IAccountRepository _accountRepository;
-        public CategoryService(ITransactionCategoryRepository transactionCategoryRepository, IAccountRepository accountRepository)
+        private readonly IAccountService _accountService;
+        public CategoryService(ITransactionCategoryRepository transactionCategoryRepository, IAccountRepository accountRepository, IAccountService accountService)
         {
             _transactionCategoryRepository = transactionCategoryRepository;
             _accountRepository = accountRepository;
+            _accountService = accountService;
+        }
+
+        public async Task CreateTransactionCategory(TransactionCategory transactionCategory)
+        {
+           await _transactionCategoryRepository.CreateTransactionCategory(transactionCategory);
+        }
+
+        public async Task DeleteTransactionCategory(int transactionCategoryToDeleteId)
+        {
+            var account = await _accountRepository.GetAccountByCategory(transactionCategoryToDeleteId);
+            if (account != null)
+            {
+                await _accountService.DeleteAccount(account.Id);
+            }
+            await _transactionCategoryRepository.DeleteTransactionCategory(transactionCategoryToDeleteId);
+        }
+
+        public async Task EditTransactionCategory(TransactionCategory newTransactionCategory, int transactionCategoryToEditId)
+        {
+            await _transactionCategoryRepository.EditTransactionCategory(newTransactionCategory, transactionCategoryToEditId);
         }
 
         public async Task<IEnumerable<TransactionCategory>> ExceptTransactionCategoriesLocatedInAccounts(string userId)
@@ -38,12 +60,37 @@ namespace HomeAccounting.Infrastructure.Services.Concrete
             return newCategoriesList;
         }
 
+        public async Task<IEnumerable<TransactionCategory>> GetAllCategoiesByParentCategory(int parentCategoryId)
+        {
+            return await _transactionCategoryRepository.GetAllCategoiesByParentCategory(parentCategoryId);
+        }
+
+        public async Task<IEnumerable<TransactionCategory>> GetAllCategoriesByUser(string userId)
+        {
+            return await _transactionCategoryRepository.GetAllCategoriesByUser(userId);
+        }
+
+        public async Task<TransactionCategory> GetConcreteTransactionCategory(int transactionCategoryId)
+        {
+            return await _transactionCategoryRepository.GetConcreteTransactionCategory(transactionCategoryId); 
+        }
+
         public async Task<bool> IsSuchCategoryExists(string userId, string categoryName)
         {
             var category = _transactionCategoryRepository
                 .GetAllCategoriesByUser(userId)
                 .Result
                 .FirstOrDefault(x => x.Name == categoryName);
+
+            return category == null;
+        }
+
+        public async Task<bool> IsSuchCategoryExists(string userId, int id)
+        {
+            var category = _transactionCategoryRepository
+                .GetAllCategoriesByUser(userId)
+                .Result
+                .FirstOrDefault(x => x.Id == id);
 
             return category == null;
         }

@@ -15,6 +15,8 @@ namespace HomeAccounting.Infrastructure.Services.Concrete
     public class EmailSender : IEmailSender
     {
         private readonly EmailConfiguration _emailConfig;
+        private const string MAIL_ADRESS_TYPE = "email";
+        private const string AUTHENTICATION_MECHANISMS = "XOAUTH2";
 
         public EmailSender(EmailConfiguration emailConfig)
         {
@@ -24,7 +26,7 @@ namespace HomeAccounting.Infrastructure.Services.Concrete
         public MimeMessage CreateEmailMessage(Message message)
         {
             var emailMessage = new MimeMessage();
-            emailMessage.From.Add(new MailboxAddress("email", _emailConfig.From));
+            emailMessage.From.Add(new MailboxAddress(MAIL_ADRESS_TYPE, _emailConfig.From));
             emailMessage.To.AddRange(message.To);
             emailMessage.Subject = message.Subject;
             emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html) { Text = message.Content };
@@ -46,13 +48,9 @@ namespace HomeAccounting.Infrastructure.Services.Concrete
                     client.ServerCertificateValidationCallback = (s, c, h, e) => true;
 
                     client.Connect(_emailConfig.SmtpServer, _emailConfig.Port, SecureSocketOptions.Auto);
-                    client.AuthenticationMechanisms.Remove("XOAUTH2");
+                    client.AuthenticationMechanisms.Remove(AUTHENTICATION_MECHANISMS);
                     client.Authenticate(_emailConfig.UserName, _emailConfig.Password);
                     client.Send(mailMessage);
-                }
-                catch
-                {
-                    throw;
                 }
                 finally
                 {

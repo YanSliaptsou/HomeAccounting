@@ -6,7 +6,7 @@ export interface AccountReceiveDto{
     name : string;
     type : string;
     currencyId : string;
-    appUserId : string;
+    appUserId? : string;
 
     limitsList? : LimitReceiveDto[];
 }

@@ -38,14 +38,6 @@ namespace HomeAccounting.Domain.Repositories
             await _context.SaveChangesAsync();
         }
 
-        /*public async Task ChangeMainCurrency(string userId, string currencyCode)
-{
-    AppUser user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
-    Currency currency = await _context.Currencies.FirstOrDefaultAsync(x => x.Id == currencyCode);
-
-    user.MainCurrencyId = currency.Id;
-}*/
-
         public async Task<AppUser> GetConcreteUser(string userId)
         {
             return await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);

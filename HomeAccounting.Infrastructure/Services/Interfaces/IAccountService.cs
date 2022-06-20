@@ -13,5 +13,12 @@ namespace HomeAccounting.Infrastructure.Services.Abstract
         Task<bool> IsSuchAccountNameExists(string userId, string name);
         Task<LedgerType> DefineAccountType(int accountId);
         Task<List<Account>> GetAccountsListByCategory(int categoryId);
+        Task<IEnumerable<Account>> GetAllAccountByUser(string userId);
+        Task<IEnumerable<Account>> GetAllAcountsByType(string userId, string type);
+        Task<Account> GetAccountById(int accountId);
+        Task<Account> GetAccountByCategory(int categoryId);
+        Task CreateAccount(Account account);
+        Task EditAccount(Account newAccount, int accountToEditId);
+        Task DeleteAccount(int accountToDeleteId);
     }
 }

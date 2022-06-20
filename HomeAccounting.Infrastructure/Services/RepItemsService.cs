@@ -1,4 +1,5 @@
-﻿using HomeAccounting.Domain.Models.Entities;
+﻿using HomeAccounting.Domain.Models;
+using HomeAccounting.Domain.Models.Entities;
 using HomeAccounting.Domain.Models.Entities.Reports;
 using HomeAccounting.Domain.Repositories.Interfaces;
 using HomeAccounting.Infrastructure.Services.Abstract;
@@ -60,15 +61,7 @@ namespace HomeAccounting.Infrastructure.Services
         {
             List<Account> accounts = _accountService.GetAccountsListByCategory(categoryId).Result;
 
-            List<AccountReport> outcomeAccountReports = new List<AccountReport>();
-
-            foreach(var account in accounts)
-            {
-                if (account != null)
-                {
-                    outcomeAccountReports.Add(await GetAccountReport(account.Id, dateFrom, dateTo));
-                }
-            }
+            List<AccountReport> outcomeAccountReports = await GetAccountReportListByAccounts(accounts, dateFrom, dateTo);
 
             var percentage = await _repCalculatorService.CalculatePercentageByCategory(categoryId, dateFrom, dateTo);
             var totalSum = await _repCalculatorService.CalculateByCategory(categoryId, dateFrom, dateTo);
@@ -85,6 +78,30 @@ namespace HomeAccounting.Infrastructure.Services
             };
 
             return outcomeCategoryReport;
+        }
+
+        public async Task<List<AccountReport>> GetAccountReportListByAccounts(IEnumerable<Account> accounts, DateTime dateFrom, DateTime dateTo)
+        {
+            List<AccountReport> accountsReport = new List<AccountReport>();
+            foreach (var account in accounts)
+            {
+                if (account != null)
+                {
+                    accountsReport.Add(await GetAccountReport(account.Id, dateFrom, dateTo));
+                }
+            }
+            return accountsReport;
+        }
+
+        public async Task<List<OutcomeCategoryReport>> GetCategoryReportListByCategory(IEnumerable<ParentTransactionCategory> categories, DateTime dateFrom, DateTime dateTo)
+        {
+            List<OutcomeCategoryReport> outcomeCategoryReports = new List<OutcomeCategoryReport>();
+            foreach (var category in categories)
+            {
+                outcomeCategoryReports.Add(await GetOutcomeCategoryReport(category.Id, dateFrom, dateTo));
+            }
+
+            return outcomeCategoryReports;
         }
     }
 }

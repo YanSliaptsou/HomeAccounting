@@ -1,4 +1,6 @@
-﻿using HomeAccounting.Domain.Models.Entities.Reports;
+﻿using HomeAccounting.Domain.Models;
+using HomeAccounting.Domain.Models.Entities;
+using HomeAccounting.Domain.Models.Entities.Reports;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +11,9 @@ namespace HomeAccounting.Infrastructure.Services.Interfaces
 {
     public interface IRepItemsService
     {
-        /*Task<IncomeAccountReport> GetIncomeAccountReport(int accountId, DateTime dateFrom, DateTime dateTo);
-        Task<OutcomeAccountReport> GetOutcomeAccountReport(int accountId, DateTime dateFrom, DateTime dateTo);*/
         Task<OutcomeCategoryReport> GetOutcomeCategoryReport(int categoryId, DateTime dateFrom, DateTime dateTo);
         Task<AccountReport> GetAccountReport(int accountId, DateTime dateFrom, DateTime dateTo);
+        Task<List<AccountReport>> GetAccountReportListByAccounts(IEnumerable<Account> accounts, DateTime dateFrom, DateTime dateTo);
+        Task<List<OutcomeCategoryReport>> GetCategoryReportListByCategory(IEnumerable<ParentTransactionCategory> categories, DateTime dateFrom, DateTime dateTo);
     }
 }

@@ -41,6 +41,7 @@ export class LedgersComponent implements OnInit {
 
   currencyExchangeRate : CurrencyExchangeRate;
 
+
   constructor(public ledgService : LedgersService, 
     private accountService : AccountService, 
     private modalService : BsModalService,
@@ -75,6 +76,8 @@ export class LedgersComponent implements OnInit {
   accountsForReport : AccountReceiveDto[];
 
   isError = false;
+  successMessage = "";
+  isSuccess = false;
   errorMessage = "";
 
   ngOnInit(): void {
@@ -125,29 +128,29 @@ export class LedgersComponent implements OnInit {
   }
 
   loadAccountsForReport(){
-    this.accountService.getAccounts(this.INCOME_ACCOUNTS_API).subscribe(response => {
-      this.accountsForReport = response;
+    this.accountService.getAccounts(this.INCOME_ACCOUNTS_API).subscribe((response : any) => {
+      this.accountsForReport = response.data;
     })
   }
 
   loadIncomeAccounts(type : number){
-    this.accountService.getAccounts(this.INCOME_ACCOUNTS_API).subscribe(response => {
+    this.accountService.getAccounts(this.INCOME_ACCOUNTS_API).subscribe((response : any) => {
       if (type == 0){
-        this.incomeAccounts = response;
+        this.incomeAccounts = response.data;
       }
       else{
-        this.outcomeAccounts = response;
+        this.outcomeAccounts = response.data;
       }
     })
   }
 
   loadOutcomeAccounts(type : number){
-    this.accountService.getAccounts(this.OUTCOME_ACCOUNTS_API).subscribe(response => {
+    this.accountService.getAccounts(this.OUTCOME_ACCOUNTS_API).subscribe((response : any) => {
       if (type == 0){
-        this.outcomeAccounts = response;
+        this.outcomeAccounts = response.data;
       }
       else{
-        this.incomeAccounts = response;
+        this.incomeAccounts = response.data;
       }
     })
   }
@@ -165,9 +168,13 @@ export class LedgersComponent implements OnInit {
       dateTime : ledgersForm.dateTime,
     }
     this.ledgService.addLedger(ledger).subscribe((response => {
-
+      this.isError = false;
+      this.isSuccess = true;
+      this.successMessage = "Transaction nmb. " + response.data.id + " is successfully added"
     }), error => {
-
+      this.isError = true;
+      this.isSuccess = false;
+      this.errorMessage = error.errorMessage;
     })
   }
 
@@ -185,8 +192,13 @@ export class LedgersComponent implements OnInit {
     }
     this.ledgService.editLedger(ledgerId, ledger).subscribe((response => {
       this.loadLedgers(null,this.accountId, this.dateFrom, this.dateTo);
+      this.isError = false;
+      this.isSuccess = true;
+      this.successMessage = "Transaction nmb. " + response.data.id + " is successfully edited"
       }), error => {
-
+        this.isError = true;
+        this.isSuccess = false;
+        this.errorMessage = error.errorMessage;
       })
   }
 
@@ -217,7 +229,13 @@ export class LedgersComponent implements OnInit {
     console.log(id);
     this.ledgService.deleteLedger(id).subscribe((response => {
       this.loadLedgers(null,this.accountId, this.dateFrom, this.dateTo);
+      this.isError = false;
+      this.isSuccess = true;
+      this.successMessage = "Transaction is successfully deleted";
     }), error => {
+      this.isError = true;
+        this.isSuccess = false;
+        this.errorMessage = error.errorMessage;
     })
     this.modalRef?.hide();
   }

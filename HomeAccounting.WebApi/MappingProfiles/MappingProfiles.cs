@@ -17,6 +17,10 @@ using HomeAccounting.WebApi.DTOs.ReportDto;
 using HomeAccounting.WebApi.DTOs.ReportDto.Income;
 using HomeAccounting.WebApi.DTOs.ReportDto.Outcome;
 using HomeAccounting.WebApi.DTOs.UserDto;
+using HomeAccounting.WebApi.DTOs.ParentCategoriesDTO;
+using HomeAccounting.WebApi.DTOs.CategoriesDto;
+using HomeAccounting.WebApi.DTOs.AccountsDTO;
+using HomeAccounting.Domain.Models.Entities;
 
 namespace HomeAccounting.WebApi.MappingProfiles
 {
@@ -58,6 +62,24 @@ namespace HomeAccounting.WebApi.MappingProfiles
                 .ForMember(x => x.PhoneNumberConfirmed, x => x.Ignore())
                 .ForMember(x => x.SecurityStamp, x => x.Ignore())
                 .ForMember(x => x.TwoFactorEnabled, x => x.Ignore());
+            CreateMap<ParentTransactionCategory, ParentCategoryResponseDto>();
+            CreateMap<ParentCategoryRequestDto, ParentTransactionCategory>()
+                .ForMember(x => x.Id, x => x.Ignore())
+                .ForMember(x => x.User, x => x.Ignore())
+                .ForMember(x => x.UserId, x => x.Ignore());
+            CreateMap<TransactionCategory, CategoryResponseDto>();
+            CreateMap<CategoryRequestDto, TransactionCategory>()
+                .ForMember(x => x.Id, x => x.Ignore())
+                .ForMember(x => x.ParentTransactionCategory, x => x.Ignore())
+                .ForMember(x => x.User, x => x.Ignore())
+                .ForMember(x => x.UserId, x => x.Ignore());
+            CreateMap<Account, AccountResponseDto>();
+            CreateMap<AccountRequestDto, Account>()
+                .ForMember(x => x.AppUser, x => x.Ignore())
+                .ForMember(x => x.AppUserId, x => x.Ignore())
+                .ForMember(x => x.Id, x => x.Ignore())
+                .ForMember(x => x.TransactionCategory, x => x.Ignore())
+                .ForMember(x => x.Сurrency, x => x.Ignore());
         }
     }
 }
