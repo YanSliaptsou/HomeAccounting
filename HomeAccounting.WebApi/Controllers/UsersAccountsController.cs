@@ -34,7 +34,6 @@ namespace HomeAccounting.WebApi.Controllers
         private const string ERROR_INVALID_PASSWORD = "Invalid Password";
         private const string ERROR_EMAIL_IS_NOT_CONFIRMED = "Email is not confirmed";
         private const string ERROR_INVALID_TOKEN = "Invalid token";
-        private const string ERROR_USERNAME_EXISTS = "Such username is already exists";
         public UsersAccountsController(
             UserManager<AppUser> userManager, 
             IMapper mapper, 
@@ -127,6 +126,7 @@ namespace HomeAccounting.WebApi.Controllers
         [HttpPost("ResetPassword")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto resetPasswordDto)
         {
+            resetPasswordDto.Token = CorrectConfiramtionToken(resetPasswordDto.Token);
             var user = await _userManager.FindByEmailAsync(resetPasswordDto.Email);
             var resetPassResult = await _userManager.ResetPasswordAsync(user, resetPasswordDto.Token, resetPasswordDto.Password);
             if (!resetPassResult.Succeeded)

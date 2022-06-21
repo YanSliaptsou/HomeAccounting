@@ -8,7 +8,7 @@ namespace HomeAccounting.WebApi.DTOs.CategoriesDto
 {
     public class CategoryRequestDto
     {
-        public int ParentTransactionCategoryId { get; set; }
+        public int? ParentTransactionCategoryId { get; set; }
         public string Name { get; set; }
     }
 }

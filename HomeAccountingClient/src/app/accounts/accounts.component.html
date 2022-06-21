@@ -11,7 +11,7 @@
         <div class="mb-3 row">
           <label for="type" class="col-form-label col-sm-2">Account type:</label>
           <div class="col-md-5">
-              <select [(ngModel)]="currentType" class="form-control" id="type" formControlName="type">
+              <select [(ngModel)]="currentType" class="form-control" id="type" formControlName="type" >
                   <option (click)="updateForm('income')">Income</option>
                   <option (click)="updateForm('outcome')">Outcome</option>
               </select>
@@ -35,7 +35,7 @@
         <label for="transactionCategory" class="col-form-label col-sm-2">Category:</label>
         <div class="col-md-5">
             <select [(ngModel)]="currentCategory" class="form-control" [disabled]="isTransactionCategoryDisabled" id="transactionCategory" formControlName="transactionCategory">
-                <option *ngFor="let category of categories" [value]="category.id">{{category.id +' '+category.name}}</option>
+                <option *ngFor="let category of categories" [ngValue]="category.id">{{category.id +' '+category.name}}</option>
             </select>
         </div>
         <div class="col-md-5">

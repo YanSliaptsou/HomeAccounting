@@ -28,7 +28,8 @@ import { ReportComponentComponent } from './reports/report-component/report-comp
 import { IncomeReportComponent } from './reports/income-report/income-report.component';
 import { OutcomeReportComponent } from './reports/outcome-report/outcome-report.component';
 import { AlertModule } from 'ngx-bootstrap/alert';
-import { UserSettingsComponent } from './user-settings/user-settings.component'
+import { UserSettingsComponent } from './user-settings/user-settings.component';
+import { DisableControlDirective } from './directives/disable-control.directive'
 
 export function tokenGetter() {
   return localStorage.getItem("token");
@@ -48,6 +49,7 @@ export function tokenGetter() {
     IncomeReportComponent,
     OutcomeReportComponent,
     UserSettingsComponent,
+    DisableControlDirective,
   ],
   imports: [
     JwtModule.forRoot({

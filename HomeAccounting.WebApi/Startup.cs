@@ -20,6 +20,7 @@ using HomeAccounting.Infrastructure.Services.Interfaces;
 using HomeAccounting.Infrastructure.Services;
 using System.Text.Json.Serialization;
 using HomeAccounting.Infrastructure.Middleware;
+using HomeAccounting.Infrastructure.Extensions;
 
 namespace HomeAccounting.WebApi
 {
@@ -68,29 +69,8 @@ namespace HomeAccounting.WebApi
                 opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
 
-            services.AddTransient<IUserRepository, UserRepository>();
-            services.AddTransient<IExchangeRatesRepository, ExhangeRatesRepository>();
-            services.AddTransient<ITransactionCategoryRepository, TransactionCategoryRepository>();
-            services.AddTransient<ITokenService, TokenService>();
-            services.AddTransient<IExchangeRatesService, ExchangeRatesService>();
-            services.AddTransient<ICurrenciesRepository, CurrenciesRepository>();
-            services.AddTransient<IParentTransactionCategoryRepository, ParentTransactionCategoryRepository>();
-            services.AddTransient<IParentCategoryService, ParentCategoryService>();
-            services.AddTransient<ICategoryService, CategoryService>();
-            services.AddTransient<IAccountRepository, AccountRepository>();
-            services.AddTransient<IAccountService, AccountService>();
-            services.AddTransient<ILimitsRepository, LimitsRepository>();
-            services.AddTransient<ILegderRepository, LegderRepository>();
-            services.AddTransient<ILegderService, LegderService>();
-            services.AddTransient<ILimitsService,  LimitsService>();
-            services.AddTransient<IRepCalculatorService, RepCalculatorService>();
-            services.AddTransient<IRepConstructorService, RepConstructorService>();
-            services.AddTransient<IRepItemsService, RepItemsService>();
-            services.AddTransient<IUserService, UserService>();
-            services.AddTransient<IHTMLTemplateRepository, HTMLTemplateRepository>();
-            services.AddTransient<IEmailBilder, EmailBilder>();
-            services.AddTransient<IHTMLTemplateService, HTMLTemplateService>();
-            services.AddTransient<IQueryParamsService, QueryParamsService>();
+            services.AddAppServices();
+            services.AddAppRepositories();
 
             services.AddAutoMapper(typeof(MappingProfiles.MappingProfiles).Assembly);
             services.AddCors();
@@ -115,7 +95,6 @@ namespace HomeAccounting.WebApi
                 .GetSection("EmailConfiguration")
                 .Get<EmailConfiguration>();
             services.AddSingleton(emailConfig);
-            services.AddTransient<IEmailSender, EmailSender>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

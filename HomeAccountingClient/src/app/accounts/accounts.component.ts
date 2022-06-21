@@ -224,11 +224,20 @@ export class AccountsComponent implements OnInit {
 
   addAccount(accoutnF : any){
     const accForm = {... accoutnF}
+
+    var transCatId : number;
+    if (this.categories.length == 1){
+      transCatId = this.categories[0].id;
+    }
+    else{
+      transCatId = accForm.transactionCategory;
+    }
+    
     const acc : AccountSendDto = {
       type : accForm.type,
       name : accForm.name,
       currencyId : accForm.currency,
-      transactionCategoryId : accForm.transactionCategory
+      transactionCategoryId : transCatId
     }
     this.accountService.addAccount("api/accounts", acc)
     .subscribe((response : any) => {
@@ -236,7 +245,7 @@ export class AccountsComponent implements OnInit {
       this.loadCategories();
       this.showSuccess = true;
       this.showError = false;
-      this.successMessage = "Account " + response.data.name + " has successfuly added.";
+      this.successMessage = "Account nmb." + acc.name + " has successfuly added.";
     }, error => {
       this.showSuccess = false;
       this.showError = true;
@@ -317,6 +326,7 @@ export class AccountsComponent implements OnInit {
       this.showError = false;
       this.successMessage = "Account nmb. " + id + " has been deleted successfuly!"
       this.loadAccounts("All")
+      this.loadCategories();
     }, error => {
       this.showError = true;
         this.showSuccess = false;
