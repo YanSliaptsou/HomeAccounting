@@ -3,7 +3,7 @@
       <h1 class="card-title">Add Account</h1>
       <div *ngIf="showError" class="alert alert-danger" role="alert">
         <span [innerHTML]="errorMessage"></span>
-    </div>
+      </div>
     <div *ngIf="showSuccess" class="alert alert-success" role="alert">
         <span [innerHTML]="successMessage"></span>
     </div>
@@ -11,13 +11,13 @@
         <div class="mb-3 row">
           <label for="type" class="col-form-label col-sm-2">Account type:</label>
           <div class="col-md-5">
-              <select [(ngModel)]="currentType" class="form-control" id="type" formControlName="type">
+              <select [(ngModel)]="currentType" class="form-control" id="type" formControlName="type" >
                   <option (click)="updateForm('income')">Income</option>
                   <option (click)="updateForm('outcome')">Outcome</option>
               </select>
           </div>
           <div class="col-md-5">
-            <em style="color: red;" *ngIf="validateControl('type', this.accountForm) && hasError(this.accountForm, 'type','required')">Account type is required</em>
+            <em *ngIf="validateControl('type', this.accountForm) && hasError(this.accountForm, 'type','required')">Account type is required</em>
           </div>
       </div>
       <div class="mb-3 row">
@@ -28,35 +28,35 @@
             </select>
         </div>
         <div class="col-md-5">
-            <em style="color: red;" *ngIf="validateControl('currency',this.accountForm) && hasError(this.accountForm,'currency','required')">Currency is required</em>
+            <em *ngIf="validateControl('currency',this.accountForm) && hasError(this.accountForm,'currency','required')">Currency is required</em>
         </div>
       </div>
       <div class="mb-3 row">
         <label for="transactionCategory" class="col-form-label col-sm-2">Category:</label>
         <div class="col-md-5">
-            <select [(ngModel)]="currentCategory" class="form-control" id="transactionCategory" formControlName="transactionCategory">
-                <option *ngFor="let category of categories" [value]="category.id">{{category.id +' '+category.name}}</option>
+            <select [(ngModel)]="currentCategory" class="form-control" [disabled]="isTransactionCategoryDisabled" id="transactionCategory" formControlName="transactionCategory">
+                <option *ngFor="let category of categories" [ngValue]="category.id">{{category.id +' '+category.name}}</option>
             </select>
         </div>
         <div class="col-md-5">
-            <em style="color: red;" *ngIf="validateControl('transactionCategory', this.accountForm) && hasError(this.accountForm, 'transactionCategory','required')">Category is required</em>
+            <em *ngIf="validateControl('transactionCategory', this.accountForm) && hasError(this.accountForm, 'transactionCategory','required')">Category is required</em>
         </div>
       </div>
       <div class="mb-3 row">
         <label for="name" class="col-form-label col-sm-2">Account name:</label>
         <div class="col-md-5">
-            <input [(ngModel)]="currentAccountName"  type="text" id="name" formControlName="name" class="form-control" />
+            <input [(ngModel)]="currentAccountName" [disabled]="isNameDisabled"  type="text" id="name" formControlName="name" class="form-control" />
         </div>
         <div class="col-md-5">
-            <em style="color: red;" *ngIf="validateControl('name', this.accountForm) && hasError(this.accountForm, 'name', 'required')">Account name is required</em>
+            <em *ngIf="validateControl('name', this.accountForm) && hasError(this.accountForm, 'name', 'required')">Account name is required</em>
         </div>
         </div>
         <br>
             <div class="mb-3 row">
-                <div class="col-md-2">          
+                <div class="col-md-2 mt-2">          
                     <button type="submit" (click)="addAccount(this.accountForm.value)" class="btn btn-info" [disabled]="!accountForm.valid || !isAdding">Add account</button>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-2 mt-2">
                   <button type="submit" (click)="editAccount(this.accountForm.value, currentAccount.id)" [disabled]="!accountForm.valid || !isEditing" class=" btn btn-warning">Edit account</button>
                 </div>
             </div>
@@ -88,13 +88,16 @@
     <tr *ngFor="let account of accounts">
       <th scope="row">{{account.id}}</th>
       <td>{{account.name}}</td>
-      <td>
+      <td *ngIf="account.limitsList.length > 0">
         <table>
           <thead>
             <tr>
               <th>Date From</th>
               <th>Date To</th>
               <th>Sum</th>
+              <th>Total Spend</th>
+              <th>Spend Progress %</th>
+              <th>%</th>
             </tr>
           </thead>
           <tbody>
@@ -102,20 +105,30 @@
               <td>{{lim.limitFrom | date}}</td>
               <td>{{lim.limitTo | date}}</td>
               <td>{{lim.limit}}</td>
+              <td>{{lim.totalSpend}}</td>
+              <td>
+                  <progressbar *ngIf="lim.percentage >=0 && lim.percentage < 50" style="color:black;" [value]="lim.percentage" type="success" [striped]="true"></progressbar>
+                  <progressbar *ngIf="lim.percentage >=50 && lim.percentage < 80" style="color:black;" [value]="lim.percentage" type="warning" [striped]="true"></progressbar>
+                  <progressbar *ngIf="lim.percentage >=80" style="color:black;" [value]="lim.percentage" type="danger" [striped]="true"></progressbar>
+              </td>
+              <td *ngIf="lim.percentage >=0 && lim.percentage < 50" style="color:green"><b>{{lim.percentage}}</b></td>
+              <td *ngIf="lim.percentage >=50 && lim.percentage < 80" style="color:orange"><b>{{lim.percentage}}</b></td>
+              <td *ngIf="lim.percentage >=80"><b>{{lim.percentage}}</b></td>
             </tr>
           </tbody>
         </table>
       </td>
+      <td *ngIf="account.limitsList.length === 0">-</td>
       <td>{{account.currencyId}}</td>
       <td><div class="mb-3 row" >
-        <div style="margin-left: 30px; margin-top: 5px;">
-          <button type="submit" (click)="getConcreteAccountToEdit(account.id)" class=" btn btn-primary">Edit</button>
+        <div class="col-md-2 mt-2 ml-5">
+          <button style="width: 140px;" type="submit" (click)="getConcreteAccountToEdit(account.id)" class=" btn btn-primary">Edit</button>
         </div>
-        <div style="margin-left: 30px; margin-top: 5px;">
-          <button type="submit" (click)="openModalOnDelete(template, account.id)" class=" btn btn-danger">Delete</button>
+        <div class="col-md-2 mt-2 ml-5">
+          <button style="width: 140px;" type="submit" (click)="openModalOnDelete(template, account.id)" class=" btn btn-danger">Delete</button>
         </div>
-        <div *ngIf="account.type === 'Outcome'" style="margin-left: 30px; margin-top: 5px;">
-            <button type="submit" (click)="lgModal.show(); loadLimits(account); getConcreteAccount(account.id)" class=" btn btn-success">Set constaraints</button>
+        <div *ngIf="account.type === 'Outcome'" class="col-md-2 mt-2 ml-5">
+            <button style="width: 140px;" type="submit" (click)="lgModal.show(); loadLimits(account); getConcreteAccount(account.id)" class=" btn btn-success">Constaraints</button>
           </div>
       </div></td>
     </tr>
@@ -158,7 +171,7 @@
             <input [(ngModel)]="currentDateFrom" placeholder="Date from"  type="datetime" id="dateFrom" formControlName="dateFrom" class="form-control" bsDatepicker/>
           </div>
           <div class="col-md-3">
-              <em style="color: red;" *ngIf="validateControl('dateFrom',this.limitsForm) && hasError(this.limitsForm,'dateFrom','required')">Date from is required</em>
+              <em *ngIf="validateControl('dateFrom',this.limitsForm) && hasError(this.limitsForm,'dateFrom','required')">Date from is required</em>
           </div>
         </div>
         <div class="mb-3 row">
@@ -167,7 +180,7 @@
             <input [(ngModel)]="currentDateTo" placeholder="Date to"  type="datetime" id="dateTo" formControlName="dateTo" class="form-control" bsDatepicker/>
           </div>
           <div class="col-md-3">
-              <em style="color: red;" *ngIf="validateControl('dateTo',this.limitsForm) && hasError(this.limitsForm,'dateTo','required')">Date to is required</em>
+              <em *ngIf="validateControl('dateTo',this.limitsForm) && hasError(this.limitsForm,'dateTo','required')">Date to is required</em>
           </div>
         </div>
         <div class="mb-3 row">
@@ -176,16 +189,16 @@
             <input [(ngModel)]="currentLimitAmmount" placeholder="Limit sum"  type="number" id="limit" formControlName="limit" class="form-control"/>
           </div>
           <div class="col-md-3">
-              <em style="color: red;" *ngIf="validateControl('limit',this.limitsForm) && hasError(this.limitsForm,'limit','required')">Limit sum number is required</em>
-              <em style="color: red;" *ngIf="validateControl('limit',this.limitsForm) && hasError(this.limitsForm,'limit','number')">Please provide a valid number</em>
+              <em *ngIf="validateControl('limit',this.limitsForm) && hasError(this.limitsForm,'limit','required')">Limit sum number is required</em>
+              <em *ngIf="validateControl('limit',this.limitsForm) && hasError(this.limitsForm,'limit','number')">Please provide a valid number</em>
           </div>
         </div>
         <br>
         <div class="mb-3 row">
-          <div class="col-md-2">          
-              <button type="submit" (click)="addLimit(this.limitsForm.value)" class="btn btn-info" [disabled]="!limitsForm.valid || !isAddingLimit">Add limit</button>
+          <div class="col-md-2 mt-2">          
+            <button  type="submit" (click)="addLimit(this.limitsForm.value)" class="btn btn-info" [disabled]="!limitsForm.valid || !isAddingLimit">Add limit</button>
           </div>
-          <div class="col-md-2">
+          <div class="col-md-2 mt-2">
             <button type="submit" (click)="editLimit(this.limitsForm.value, currentLimit.id)" [disabled]="!limitsForm.valid || !isEditingLimit" class=" btn btn-warning">Edit limit</button>
           </div>
       </div>
@@ -213,11 +226,11 @@
         <td>{{limit.limitFrom | date}}</td>
         <td>{{limit.limitTo | date}}</td>
         <td><div class="mb-3 row" >
-          <div style="margin-left: 30px; margin-top: 5px;">
-            <button type="submit" (click)="getConcreteLimitToEdit(limit.id)" class=" btn btn-primary">Edit</button>
+          <div class="col-md-2 ml-5 mt-2">
+            <button style="width: 70px;" type="submit" (click)="getConcreteLimitToEdit(limit.id)" class=" btn btn-primary">Edit</button>
           </div>
-          <div style="margin-left: 30px; margin-top: 5px;">
-            <button type="submit" (click)="openModalOnDeleteLimit(templateModal, limit.id)" class=" btn btn-danger">Delete</button>
+          <div class="col-md-2 ml-5 mt-2">
+            <button style="width: 70px;" type="submit" (click)="openModalOnDeleteLimit(templateModal, limit.id)" class=" btn btn-danger">Delete</button>
           </div>
         </div></td>
       </tr>

@@ -11,6 +11,7 @@ namespace HomeAccounting.WebApi.DTOs.RegistrationDTOs
         public string? UserName { get; set; }
 
         [Required(ErrorMessage = "Email is required.")]
+        [DataType(DataType.EmailAddress)]
         public string? Email { get; set; }
         public string? MainCurrencyId { get; set; }
 

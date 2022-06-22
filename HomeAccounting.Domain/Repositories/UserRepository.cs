@@ -18,12 +18,34 @@ namespace HomeAccounting.Domain.Repositories
         {
             _context = context;
         }
-        public async Task ChangeMainCurrency(string userId, string currencyCode)
-        {
-             AppUser user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
-             Currency currency = await _context.Currencies.FirstOrDefaultAsync(x => x.Id == currencyCode);
 
-             user.MainCurrencyId = currency.Id;
+        public async Task EditUser(AppUser appUser, string userToEditId)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userToEditId);
+            if (user != null)
+            {
+                if (appUser.UserName != null)
+                {
+                    user.UserName = appUser.UserName;
+                }
+
+                if (appUser.MainCurrencyId != null)
+                {
+                    user.MainCurrencyId = appUser.MainCurrencyId;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<AppUser> GetConcreteUser(string userId)
+        {
+            return await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+        }
+
+        public async Task<IEnumerable<AppUser>> GetUsersList()
+        {
+            return await _context.Users.ToListAsync();
         }
     }
 }

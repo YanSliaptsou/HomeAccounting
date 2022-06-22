@@ -69,6 +69,10 @@ export class AccountsComponent implements OnInit {
     currentDateFrom : string;
     currentDateTo : string;
 
+    isCurrencyDisabled = false;
+    isNameDisabled = false;
+    isTransactionCategoryDisabled = false;
+
   ngOnInit(): void {
     this.loadCategories();
     this.loadCurrencies();
@@ -107,6 +111,7 @@ export class AccountsComponent implements OnInit {
     this.limitService.getLimits("api/limits/" + account.id)
       .subscribe((response : LimitReceiveDto[]) => {
         this.limits = response;
+        console.log(this.limits);
         for(let lm of this.limits){
           account.limitsList.push(lm);
         }
@@ -123,14 +128,14 @@ export class AccountsComponent implements OnInit {
   loadCategories(){
     this.categoryService.getCategories("api/categories/list-except-repeated")
       .subscribe((response : any) => {
-        this.categories = response;
+        this.categories = response.data;
       })
   }
 
   loadAccounts(type: string){
     this.accountService.getAccounts("api/accounts/" + type)
       .subscribe((response : any) => {
-        this.accounts = response;
+        this.accounts = response.data;
         for(let acc of this.accounts){
           this.loadLimits(acc);
         }
@@ -164,14 +169,14 @@ export class AccountsComponent implements OnInit {
 
     this.accountService.getConcreteAccount("api/accounts/account-by-id/" + id)
       .subscribe((response : any) => {
-        this.currentAccount = response;
+        this.currentAccount = response.data;
         console.log(this.currentAccount);
 
         this.isEditing = true;
         this.isAdding = false;
         this.showSuccess = true;
         this.showError = false;
-        this.successMessage = "Account " + response.name + " selected to edit";
+        this.successMessage = "Account " + response.data.name + " selected to edit";
 
         this.currentType = this.currentAccount.type
         this.currentCurrency = this.currentAccount.currencyId
@@ -183,7 +188,7 @@ export class AccountsComponent implements OnInit {
   getConcreteAccount(id : number){
     this.accountService.getConcreteAccount("api/accounts/account-by-id/" + id)
       .subscribe((response : any) => {
-        this.currentAccount = response;
+        this.currentAccount = response.data;
       })
   }
 
@@ -219,24 +224,33 @@ export class AccountsComponent implements OnInit {
 
   addAccount(accoutnF : any){
     const accForm = {... accoutnF}
+
+    var transCatId : number;
+    if (this.categories.length == 1){
+      transCatId = this.categories[0].id;
+    }
+    else{
+      transCatId = accForm.transactionCategory;
+    }
+    
     const acc : AccountSendDto = {
       type : accForm.type,
       name : accForm.name,
       currencyId : accForm.currency,
-      transactionCategoryId : accForm.transactionCategory
+      transactionCategoryId : transCatId
     }
     this.accountService.addAccount("api/accounts", acc)
     .subscribe((response : any) => {
       this.loadAccounts("All");
+      this.loadCategories();
       this.showSuccess = true;
       this.showError = false;
-      this.successMessage = "Account " + response.name + " has successfuly added.";
+      this.successMessage = "Account nmb." + acc.name + " has successfuly added.";
     }, error => {
       this.showSuccess = false;
       this.showError = true;
-      this.errorMessage = error;
+      this.errorMessage = error.errorMessage;
     })
-    this.loadCategories();
   }
 
   editLimit(limitForm : any, id : number){
@@ -283,11 +297,11 @@ export class AccountsComponent implements OnInit {
       this.loadAccounts("All");
       this.showSuccess = true;
       this.showError = false;
-      this.successMessage = "Account " + response.name + " has been successfuly edited.";
+      this.successMessage = "Account " + response.data.name + " has been successfuly edited.";
     }, error => {
       this.showSuccess = false;
       this.showError = true;
-      this.errorMessage = error;
+      this.errorMessage = error.errorMessage;
     })
   }
 
@@ -312,10 +326,11 @@ export class AccountsComponent implements OnInit {
       this.showError = false;
       this.successMessage = "Account nmb. " + id + " has been deleted successfuly!"
       this.loadAccounts("All")
+      this.loadCategories();
     }, error => {
       this.showError = true;
         this.showSuccess = false;
-        this.errorMessage = error;
+        this.errorMessage = error.errorMessage;
     })
     this.modalRef?.hide();
   }

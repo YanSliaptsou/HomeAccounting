@@ -1,12 +1,16 @@
-﻿using HomeAccounting.Domain.Models;
+﻿using AutoMapper;
+using HomeAccounting.Domain.Models;
 using HomeAccounting.Domain.Repositories.Interfaces;
 using HomeAccounting.Infrastructure.Extensions;
 using HomeAccounting.Infrastructure.Services.Abstract;
 using HomeAccounting.WebApi.Controllers.BaseController;
+using HomeAccounting.WebApi.DTOs;
+using HomeAccounting.WebApi.DTOs.ParentCategoriesDTO;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace HomeAccounting.WebApi.Controllers
@@ -15,66 +19,94 @@ namespace HomeAccounting.WebApi.Controllers
     [Route("api/parent-categories")]
     public class ParentCategoriesController : BaseApiController
     {
-        private readonly IParentTransactionCategoryRepository _parentTransactionCategoryRepository;
         private readonly IParentCategoryService _parentCategoryService;
-
-        public ParentCategoriesController(IParentTransactionCategoryRepository parentTransactionCategoryRepository,
-                                          IParentCategoryService parentCategoryService)
+        private readonly IMapper _mapper;
+        private const string CATEGORY_NOT_EXISTS_MESSAGE = "Such parent category does not exists";
+        private const string CATEGORY_NAME_EXISTS_MESSAGE = "Such parent category name is already exists";
+        public ParentCategoriesController(IParentCategoryService parentCategoryService, IMapper mapper)
         {
-            _parentTransactionCategoryRepository = parentTransactionCategoryRepository;
             _parentCategoryService = parentCategoryService;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ParentTransactionCategory>>> GetParentTransactionCategories()
+        public async Task<ActionResult<IEnumerable<ParentCategoryResponseDto>>> GetParentTransactionCategories()
         {
-            return Ok(await _parentTransactionCategoryRepository.GetAllParentCategories(User.GetUserId()));
+            var parentCategories = await _parentCategoryService.GetAllParentCategories(User.GetUserId());
+            var parentCategoriesResponse = _mapper.Map<IEnumerable<ParentCategoryResponseDto>>(parentCategories);
+            return Ok(new Response<IEnumerable<ParentCategoryResponseDto>>
+            {
+                Data = parentCategoriesResponse,
+                ErrorCode = null,
+                ErrorMessage = null,
+                IsSuccessful = true
+            });
         }
 
         [Route("{parentCategoryId}")]
         [HttpGet]
-        public async Task<ActionResult<ParentTransactionCategory>> GetParentCategory(int parentCategoryId)
+        public async Task<ActionResult<ParentCategoryResponseDto>> GetParentCategory(int parentCategoryId)
         {
-            var parentCategory = await _parentTransactionCategoryRepository.GetParentCategory(parentCategoryId);
-            if (parentCategory == null)
+            var parentCategory = await _parentCategoryService.GetParentCategory(parentCategoryId);
+            if (await _parentCategoryService.IsSuchParentCategoryExists(User.GetUserId(), parentCategoryId))
             {
-                return BadRequest("Such parent category does not exists");
+                return BadRequest(new Response<ParentCategoryResponseDto> 
+                {
+                    Data = null,
+                    ErrorCode = HttpStatusCode.BadRequest.ToString(),
+                    ErrorMessage = CATEGORY_NOT_EXISTS_MESSAGE,
+                    IsSuccessful = false
+                });
             }
             else
             {
-                return Ok(parentCategory);
+                var parentCategoryRespnse = _mapper.Map<ParentCategoryResponseDto>(parentCategory);
+                return Ok(new Response<ParentCategoryResponseDto> 
+                {
+                    Data = parentCategoryRespnse,
+                    ErrorCode = null,
+                    ErrorMessage = null,
+                    IsSuccessful = true
+                });
             }
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateParentTransactionCategory([FromBody] ParentTransactionCategory parentTransactionCategory)
+        public async Task<ActionResult> CreateParentTransactionCategory([FromBody] ParentCategoryRequestDto parentCategoryRequestDto)
         {
-            var userId = User.GetUserId();
-            if (!(await _parentCategoryService.IsSuchParentCategoryExists(userId, parentTransactionCategory.Name)))
+            var parentTransactionCategory = _mapper.Map<ParentTransactionCategory>(parentCategoryRequestDto);
+            if (!(await _parentCategoryService.IsSuchParentCategoryExists(User.GetUserId(), parentTransactionCategory.Name)))
             {
-                return BadRequest("Such parent category name is already exists");
+                return BadRequest(new Response<ParentTransactionCategory>
+                {
+                    Data = null,
+                    ErrorCode = HttpStatusCode.BadRequest.ToString(),
+                    IsSuccessful = false,
+                    ErrorMessage = CATEGORY_NAME_EXISTS_MESSAGE
+                });
             }
 
-            parentTransactionCategory.UserId = userId;
-            await _parentTransactionCategoryRepository.CreateParentTransactionCategory(parentTransactionCategory);
+            parentTransactionCategory.UserId = User.GetUserId();
+            await _parentCategoryService.CreateParentTransactionCategory(parentTransactionCategory);
 
-            return Ok(parentTransactionCategory);
+            return Ok();
         }
 
         [Route("{parentTransactionCategoryToEdit}")]
         [HttpPut]
-        public async Task<ActionResult> EditParentTransactionCategory ([FromBody] ParentTransactionCategory parentTransactionCategory, int parentTransactionCategoryToEdit)
+        public async Task<ActionResult> EditParentTransactionCategory ([FromBody] ParentCategoryRequestDto parentCategoryRequestDto, int parentTransactionCategoryToEdit)
         {
-            await _parentTransactionCategoryRepository.EditParentTransactionCategory(parentTransactionCategory, parentTransactionCategoryToEdit);
+            var parentTransactionCategory = _mapper.Map<ParentTransactionCategory>(parentCategoryRequestDto);
+            await _parentCategoryService.EditParentTransactionCategory(parentTransactionCategory, parentTransactionCategoryToEdit);
 
             return Ok();
         }
 
         [Route("{parentTransactionCategoryToDeleteId}")]
         [HttpDelete]
-        public async Task<ActionResult> DeleteParentCategoryRepository (int parentTransactionCategoryToDeleteId)
+        public async Task<ActionResult> DeleteParentCategoryRepository(int parentTransactionCategoryToDeleteId)
         {
-            await _parentTransactionCategoryRepository.DeleteParentTransactionCategory(parentTransactionCategoryToDeleteId);
+            await _parentCategoryService.DeleteParentTransactionCategory(parentTransactionCategoryToDeleteId);
 
             return Ok();
         }

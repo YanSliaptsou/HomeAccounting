@@ -1,4 +1,5 @@
-﻿using HomeAccounting.Domain.Models.Entities;
+﻿using HomeAccounting.Domain.Enums;
+using HomeAccounting.Domain.Models.Entities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -18,7 +19,7 @@ namespace HomeAccounting.Domain.Models
         public int AccountToId { get; set; }
         public decimal? AmmountFrom { get; set; }
         public decimal AmmountTo { get; set; }
-        public string Type { get; set; }
+        public LedgerType Type { get; set; }
         public AppUser User { get; set; }
         public DateTime DateTime { get; set; }
         public string UserId { get; set; }

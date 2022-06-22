@@ -25,7 +25,7 @@ export class LoginComponent implements OnInit {
       username: new FormControl("", [Validators.required]),
       password: new FormControl("", [Validators.required])
     })
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+    this.returnUrl = '/reports';
   }
 
   validateControl = (controlName: string) => {

@@ -4,10 +4,13 @@ using HomeAccounting.Domain.Repositories.Interfaces;
 using HomeAccounting.Infrastructure.Extensions;
 using HomeAccounting.Infrastructure.Services.Abstract;
 using HomeAccounting.WebApi.Controllers.BaseController;
+using HomeAccounting.WebApi.DTOs;
+using HomeAccounting.WebApi.DTOs.CategoriesDto;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 
 
@@ -17,75 +20,114 @@ namespace HomeAccounting.WebApi.Controllers
     [Route("api/categories")]
     public class CategoriesController : BaseApiController
     {
-        private readonly ITransactionCategoryRepository _transactionCategoryRepository;
         private readonly ICategoryService _categoryService;
-
-        public CategoriesController(ITransactionCategoryRepository transactionCategoryRepository, ICategoryService categoryService)
+        private readonly IMapper _mapper;
+        private const string CATEGORY_NOT_EXISTS_MESSAGE = "Such category does not exists";
+        private const string CATEGORY_NAME_EXISTS_MESSAGE = "Such category name is already exists";
+        public CategoriesController(ICategoryService categoryService, IMapper mapper)
         {
-            _transactionCategoryRepository = transactionCategoryRepository;
             _categoryService = categoryService;
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<TransactionCategory>>> GetTransactionCategories()
-        {
-            return Ok(await _transactionCategoryRepository.GetAllCategories());
+            _mapper = mapper;
         }
 
         [Route("list-except-repeated")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TransactionCategory>>> ExceptTransactionCategoriesLocatedInAccounts()
+        public async Task<ActionResult<IEnumerable<CategoryResponseDto>>> ExceptTransactionCategoriesLocatedInAccounts()
         {
             var categories = await _categoryService.ExceptTransactionCategoriesLocatedInAccounts(User.GetUserId());
-            return Ok(categories);
+            var categoriesResponse = _mapper.Map<IEnumerable<CategoryResponseDto>>(categories);
+            return Ok(new Response<IEnumerable<CategoryResponseDto>>
+            {
+                Data = categoriesResponse,
+                ErrorCode = null,
+                ErrorMessage = null,
+                IsSuccessful = true
+            }) ;
         }
 
         [Route("list-by-parent-category/{parentCategoryId}")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TransactionCategory>>> GetTransactionCategoriesByParentCategory(int parentCategoryId)
+        public async Task<ActionResult<IEnumerable<CategoryResponseDto>>> GetTransactionCategoriesByParentCategory(int parentCategoryId)
         {
-            return Ok(await _transactionCategoryRepository.GetAllCategoiesByParentCategory(parentCategoryId));
+            var categories = await _categoryService.GetAllCategoiesByParentCategory(parentCategoryId);
+            var categoriesResponse = _mapper.Map<IEnumerable<CategoryResponseDto>>(categories);
+            return Ok(new Response<IEnumerable<CategoryResponseDto>>
+            {
+                Data = categoriesResponse,
+                ErrorCode = null,
+                ErrorMessage = null,
+                IsSuccessful = true
+            });
         }
 
         [Route("list-by-user")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TransactionCategory>>> GetTransactionCategoriesByUserId()
+        public async Task<ActionResult<IEnumerable<CategoryResponseDto>>> GetTransactionCategoriesByUserId()
         {
-            return Ok(await _transactionCategoryRepository.GetAllCategoriesByUser(User.GetUserId()));
+            var categories = await _categoryService.GetAllCategoriesByUser(User.GetUserId());
+            var categoriesResponse = _mapper.Map<IEnumerable<CategoryResponseDto>>(categories);
+            return Ok(new Response<IEnumerable<CategoryResponseDto>>
+            {
+                Data = categoriesResponse,
+                ErrorCode = null,
+                ErrorMessage = null,
+                IsSuccessful = true
+            });
         }
 
         [Route("{transactionCategoryId}")]
         [HttpGet]
-        public async Task<ActionResult<TransactionCategory>> GetTransactionCategory(int transactionCategoryId)
+        public async Task<ActionResult<CategoryResponseDto>> GetTransactionCategory(int transactionCategoryId)
         {
-            var transactCategory = await _transactionCategoryRepository.GetConcreteTransactionCategory(transactionCategoryId);
-            if (transactCategory == null)
+            var transactCategory = await _categoryService.GetConcreteTransactionCategory(transactionCategoryId);
+            if (await _categoryService.IsSuchCategoryExists(User.GetUserId(), transactionCategoryId))
             {
-                return BadRequest("Such category does not exists");
+                return BadRequest(new Response<CategoryResponseDto> 
+                {
+                    Data = null,
+                    ErrorCode = HttpStatusCode.BadRequest.ToString(),
+                    ErrorMessage = CATEGORY_NOT_EXISTS_MESSAGE,
+                    IsSuccessful = false
+                });
             }
 
-            return Ok(transactCategory);
+            var transactCatResponse = _mapper.Map<CategoryResponseDto>(transactCategory);
+
+            return Ok(new Response<CategoryResponseDto> 
+            {
+                IsSuccessful = true,
+                Data = transactCatResponse,
+                ErrorCode = null,
+                ErrorMessage = null
+            });
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateTransactionCategory([FromBody] TransactionCategory transactionCategory)
+        public async Task<ActionResult> CreateTransactionCategory([FromBody] CategoryRequestDto categoryRequestDto)
         {
-            var userId = User.GetUserId();
-            if (!(await _categoryService.IsSuchCategoryExists(userId, transactionCategory.Name)))
+            if (!(await _categoryService.IsSuchCategoryExists(User.GetUserId(), categoryRequestDto.Name)))
             {
-                return BadRequest("Such category name is already exists");
+                return BadRequest(new Response<CategoryRequestDto> 
+                {
+                    Data = null,
+                    ErrorCode = HttpStatusCode.BadRequest.ToString(),
+                    ErrorMessage = CATEGORY_NAME_EXISTS_MESSAGE,
+                    IsSuccessful = false
+                });
             }
 
-            transactionCategory.UserId = userId;
-            await _transactionCategoryRepository.CreateTransactionCategory(transactionCategory);
-            return Ok(transactionCategory);
+            var category = _mapper.Map<TransactionCategory>(categoryRequestDto);
+            category.UserId = User.GetUserId();
+            await _categoryService.CreateTransactionCategory(category);
+            return Ok();
         }
 
         [Route("{transactionCategoryToEdit}")]
         [HttpPut]
-        public async Task<ActionResult> EditParentTransactionCategory([FromBody] TransactionCategory transactionCategory, int transactionCategoryToEdit)
+        public async Task<ActionResult> EditParentTransactionCategory([FromBody] CategoryRequestDto categoryRequestDto, int transactionCategoryToEdit)
         {
-            await _transactionCategoryRepository.EditTransactionCategory(transactionCategory, transactionCategoryToEdit);
+            var transactionCategory = _mapper.Map<TransactionCategory>(categoryRequestDto);
+            await _categoryService.EditTransactionCategory(transactionCategory, transactionCategoryToEdit);
 
             return Ok();
         }
@@ -94,7 +136,7 @@ namespace HomeAccounting.WebApi.Controllers
         [HttpDelete]
         public async Task<ActionResult> DeleteParentCategoryRepository(int transactionCategoryToDeleteId)
         {
-            await _transactionCategoryRepository.DeleteTransactionCategory(transactionCategoryToDeleteId);
+            await _categoryService.DeleteTransactionCategory(transactionCategoryToDeleteId);
 
             return Ok();
         }

@@ -151,10 +151,10 @@ namespace HomeAccounting.Domain.Migrations
                     b.Property<decimal>("Limit")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTime>("LimitFrom")
+                    b.Property<DateTime?>("LimitFrom")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("LimitTo")
+                    b.Property<DateTime?>("LimitTo")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
@@ -192,6 +192,19 @@ namespace HomeAccounting.Domain.Migrations
                     b.ToTable("ExchangeRates");
                 });
 
+            modelBuilder.Entity("HomeAccounting.Domain.Models.HtmlSenderTemplate", b =>
+                {
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Template")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Name");
+
+                    b.ToTable("HtmlSenderTemplates");
+                });
+
             modelBuilder.Entity("HomeAccounting.Domain.Models.Ledger", b =>
                 {
                     b.Property<int>("Id")
@@ -214,8 +227,8 @@ namespace HomeAccounting.Domain.Migrations
                     b.Property<DateTime>("DateTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Type")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<byte>("Type")
+                        .HasColumnType("tinyint");
 
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");

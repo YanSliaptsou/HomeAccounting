@@ -13,6 +13,7 @@ namespace HomeAccounting.Domain.Repositories
     public class AccountRepository : IAccountRepository
     {
         private readonly DatabaseContext _databaseContext;
+        private const string ALL_TYPE = "All";
 
         public AccountRepository(DatabaseContext databaseContext)
         {
@@ -79,7 +80,7 @@ namespace HomeAccounting.Domain.Repositories
 
         public async Task<IEnumerable<Account>> GetAllAcountsByType(string userId, string type)
         {
-            if (type == "All")
+            if (type == ALL_TYPE)
             {
                 return await _databaseContext.Accounts.Where(x => x.AppUserId == userId).ToListAsync();
             }

@@ -20,10 +20,10 @@
 
               <br>
               <div class="mb-3 row">
-                <div class="col-md-2">
+                <div class="col-md-2 mt-2">
                   <button type="submit" (click)="addParentCategory(parentCategoryForm.value)" class=" btn btn-success" [disabled]="!parentCategoryForm.valid || !isAdding">Add parent category</button>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-2 mt-2">
                   <button type="submit" (click)="editParentCategory(parentCategoryForm.value, parentCategoryReceive.id)" class=" btn btn-warning" [disabled]="!parentCategoryForm.valid || !isEditing">Edit parent category</button>
                 </div>
               </div>
@@ -39,7 +39,7 @@
         <th scope="col">Id</th>
         <th scope="col">Name</th>
         <th scope="col">Subcategories</th>
-        <th scope="col">Actions</th>
+        <th class="mr-5" scope="col">Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -49,19 +49,19 @@
         <td>
           <table>
             <tbody>
-              <tr style="color: blue;" *ngFor="let sub of category.subcategories"><b>{{sub}}</b></tr>
+              <tr *ngFor="let sub of category.subcategories"><b>{{sub}}</b></tr>
             </tbody>
           </table>
         </td>
         <td><div class="mb-3 row">
-            <div class="col-md-2 ">
-              <button type="submit" (click)="getParentCategory(parentCategoryForm.value, category.id)"  class=" btn btn-primary">Edit</button>
+            <div class="col-md-2 mt-2 ">
+              <button style="width: 140px;" type="submit" (click)="getParentCategory(parentCategoryForm.value, category.id)"  class=" btn btn-primary">Edit</button>
             </div>
-            <div class="col-md-2">
-              <button type="submit" (click)="openModalOnDelete(template, category.id)"  class=" btn btn-danger">Delete</button>
+            <div class="col-md-2 mt-2 ">
+              <button style="width: 140px;" type="submit" (click)="openModalOnDelete(template, category.id)"  class=" btn btn-danger">Delete</button>
             </div>
-            <div class="col-md-2">
-                <button type="submit" (click)="lgModal.show(); getParentCategory(null, category.id)"  class=" btn btn-success">Subcategories</button>
+            <div class="col-md-2 mt-2 ">
+                <button style="width: 140px;" type="submit" (click)="lgModal.show(); getParentCategory(null, category.id)"  class=" btn btn-success">Subcategories</button>
               </div>
           </div></td>
       </tr>
@@ -158,7 +158,7 @@
       <tr *ngFor="let subcategory of categories">
         <th scope="row">{{subcategory.id}}</th>
         <td>{{subcategory.name}}</td>
-        <td style="color:red"><b>{{subcategory.parentTransactionCategoryName}}</b></td>
+        <td><b>{{subcategory.parentTransactionCategoryName}}</b></td>
         <td><div class="mb-3 row" >
             <div style="margin-left: 30px; margin-top: 5px;">
               <button type="submit" (click)="getCategory(categoryForm.value, subcategory.id)"  class=" btn btn-primary">Edit</button>

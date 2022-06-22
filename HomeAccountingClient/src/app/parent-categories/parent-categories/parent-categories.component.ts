@@ -97,8 +97,8 @@ export class ParentCategoriesComponent implements OnInit {
 
   loadParentCategories(){
     this.parentCategoryAddEditService.getParentCategories("api/parent-categories")
-        .subscribe((response: ParentCategoryReceive[]) => {
-          this.parentCategories = response;
+        .subscribe((response: any) => {
+          this.parentCategories = response.data;
           console.log(this.parentCategories);
           for(let parent of this.parentCategories){
             this.loadSubcategoriesByParentCategory(parent);
@@ -108,8 +108,8 @@ export class ParentCategoriesComponent implements OnInit {
 
   loadSubcategories(){
     this.categoryService.getCategories("api/categories/list-by-user")
-    .subscribe((response : CategoryReceive[]) => {
-      this.categories = response;
+    .subscribe((response : any) => {
+      this.categories = response.data;
       for(var category of this.categories){
         if (category.parentTransactionCategoryId !== null){
         this.getParentCategoryForName(category.parentTransactionCategoryId, category);
@@ -121,8 +121,8 @@ export class ParentCategoriesComponent implements OnInit {
   loadSubcategoriesByParentCategory(parent: ParentCategoryReceive){
     parent.subcategories = [];
     this.categoryService.getCategories("api/categories/list-by-parent-category/" + parent.id)
-      .subscribe((response : CategoryReceive[]) => {
-        this.subcategoriesForCategory = response;
+      .subscribe((response : any) => {
+        this.subcategoriesForCategory = response.data;
         for (let nm of this.subcategoriesForCategory){
           parent.subcategories.push(nm.name);
         }
@@ -131,49 +131,52 @@ export class ParentCategoriesComponent implements OnInit {
 
   getParentCategoryForName(id : number, subcat : CategoryReceive){
     return this.parentCategoryAddEditService.getConcreteParentCategory("api/parent-categories/" + id)
-    .subscribe((response : ParentCategoryReceive) => {
-      this.parentCategoryReceiveForName = response;
-      subcat.parentTransactionCategoryName = response.name;
+    .subscribe((response : any) => {
+      this.parentCategoryReceiveForName = response.data;
+      subcat.parentTransactionCategoryName = response.data.name;
     })
   }
 
   getParentCategory(parentCategoryForm : any, id : number){
     this.parentCategoryAddEditService.getConcreteParentCategory("api/parent-categories/" + id)
-    .subscribe((response : ParentCategoryReceive) => {
-      this.parentCategoryReceive = response;
+    .subscribe((response : any) => {
+      console.log(response);
+      this.parentCategoryReceive = response.data;
       if (parentCategoryForm !== null){
       const catForm = {... parentCategoryForm}
-      this.parentCategotyName = response.name;
+      this.parentCategotyName = this.parentCategoryReceive.name;
       this.isEditing = true;
       this.isAdding = false;
       this.showSuccess = true;
       this.showError = false;
-      this.successMessage = "Category nmb. " + response.id + " " + response.name + " has been selected to edit"
+      this.successMessage = "Category nmb. " + this.parentCategoryReceive.id + " " 
+      + this.parentCategoryReceive.name + " has been selected to edit"
       }
     },error => {
       this.showError = true;
       this.showSuccess = false;
-      this.errorMessage = error;
+      this.errorMessage = error.errorMessage;
     })
   }
 
   getCategory(categoryForm : any, id : number){
     this.categoryService.getConcreteCategory("api/categories/" + id)
-    .subscribe((response : CategoryReceive) => {
-      this.categoryReceive = response;
+    .subscribe((response : any) => {
+      this.categoryReceive = response.data;
       if (categoryForm !== null){
         const subCatForm = {... categoryForm}
-        this.categoryName = response.name;
+        this.categoryName = this.categoryReceive.name;
         this.isEditingModal = true;
         this.isAddingModal = false;
         this.showSuccessModal = true;
         this.showErrorModal = false;
-        this.successMessage = "Subcategory nmb. " + response.id + " " + response.name + " has been selected to edit"
+        this.successMessageModal = "Subcategory nmb. " + this.categoryReceive.id + " " 
+        + this.categoryReceive.name + " has been selected to edit"
       }
     }, error => {
       this.showErrorModal = true;
       this.showSuccessModal = false;
-      this.errorMessageModal = error;
+      this.errorMessageModal = error.errorMessage;
     })
   }
 
@@ -192,7 +195,7 @@ export class ParentCategoriesComponent implements OnInit {
     }, error => {
       this.showError = true;
       this.showSuccess = false;
-      this.errorMessage = error;
+      this.errorMessage = error.errorMessage;
     })
   }
 
@@ -212,7 +215,7 @@ export class ParentCategoriesComponent implements OnInit {
     }, error => {
       this.showErrorModal = true;
       this.showSuccessModal = false;
-      this.errorMessageModal = error;
+      this.errorMessageModal = error.errorMessage;
     })
   }
 
@@ -233,7 +236,7 @@ export class ParentCategoriesComponent implements OnInit {
     }, error => {
       this.showError = true;
       this.showSuccess = false;
-      this.errorMessage = error;
+      this.errorMessage = error.errorMessage;
     })
   }
 
@@ -263,7 +266,7 @@ export class ParentCategoriesComponent implements OnInit {
     }, error => {
       this.showErrorModal = true;
       this.showSuccessModal = false;
-      this.errorMessageModal = error;
+      this.errorMessageModal = error.errorMessage;
     })
   }
 
@@ -279,7 +282,7 @@ export class ParentCategoriesComponent implements OnInit {
         }, error => {
           this.showError = true;
         this.showSuccess = false;
-        this.errorMessage = error;
+        this.errorMessage = error.errorMessage;
         })
         this.modalRef?.hide();
   }
@@ -293,9 +296,9 @@ export class ParentCategoriesComponent implements OnInit {
           this.successMessageModal = "Subcategory nmb. " + id + " has been deleted successfuly!"
           this.loadSubcategories();
         }, error => {
-          this.showErrorModal = true;
+        this.showErrorModal = true;
         this.showSuccessModal = false;
-        this.errorMessageModal = error;
+        this.errorMessageModal = error.errorMessage;
         })
         this.loadSubcategories();
         this.loadParentCategories();

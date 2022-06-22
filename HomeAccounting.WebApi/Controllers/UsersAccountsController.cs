@@ -1,18 +1,21 @@
 ﻿using AutoMapper;
 using HomeAccounting.Domain.Models;
-using HomeAccounting.Infrastructure.Helpers;
+using HomeAccounting.Infrastructure.Extensions;
+using HomeAccounting.Infrastructure.Services;
 using HomeAccounting.Infrastructure.Services.Abstract;
+using HomeAccounting.Infrastructure.Services.Interfaces;
 using HomeAccounting.WebApi.Controllers.BaseController;
+using HomeAccounting.WebApi.DTOs;
 using HomeAccounting.WebApi.DTOs.AuthentificationDTOs;
 using HomeAccounting.WebApi.DTOs.RegistrationDTOs;
+using HomeAccounting.WebApi.DTOs.UserDto;
 using HomeAccounting.WebApi.DTOs.WorkingWithPasswordsDTOs;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace HomeAccounting.WebApi.Controllers
@@ -23,15 +26,28 @@ namespace HomeAccounting.WebApi.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly IMapper _mapper;
         private readonly ITokenService _tokenService;
-        private readonly IEmailSender _emailSender;
-        private readonly IConfiguration _configuration;
-        public UsersAccountsController(UserManager<AppUser> userManager, IMapper mapper, ITokenService tokenService, IEmailSender emailSender, IConfiguration configuration)
+        private readonly IUserService _userService;
+        private readonly IEmailBilder _emailBilder;
+        private readonly IQueryParamsService _queryParamsService;
+
+        private const string ERROR_USER_DOES_NOT_EXIST = "Such user does not exists";
+        private const string ERROR_INVALID_PASSWORD = "Invalid Password";
+        private const string ERROR_EMAIL_IS_NOT_CONFIRMED = "Email is not confirmed";
+        private const string ERROR_INVALID_TOKEN = "Invalid token";
+        public UsersAccountsController(
+            UserManager<AppUser> userManager, 
+            IMapper mapper, 
+            ITokenService tokenService, 
+            IUserService userService, 
+            IEmailBilder emailBilder, 
+            IQueryParamsService queryParamsService)
         {
             _userManager = userManager;
             _mapper = mapper;
             _tokenService = tokenService;
-            _emailSender = emailSender;
-            _configuration = configuration;
+            _userService = userService;
+            _emailBilder = emailBilder;
+            _queryParamsService = queryParamsService;
         }
 
         [HttpPost("Register")]
@@ -47,11 +63,8 @@ namespace HomeAccounting.WebApi.Controllers
             }
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var callback = userForRegistration.ClientURI + "?token=" + token + "&email=" + userForRegistration.Email;
-            var textToSend = $"Dear User {user.UserName}, " + "\n" + "We got a request from you for confirming your email." + "\n" +
-                "Please, follow the next link to confirm your email:" + "\n" + callback;
-            var message = new Message(new string[] { user.Email }, "Email Confirmation token", textToSend);
-            _emailSender.SendEmail(message);
+            var callback = _queryParamsService.BuildQueryString(userForRegistration.ClientURI, token, userForRegistration.Email);
+            await _emailBilder.GenerateEmailMessage(Domain.Enums.EmailMessageTemplate.ConfirmEmail, callback, user, userForRegistration.Password);
 
             return Ok(token);
         }
@@ -65,20 +78,23 @@ namespace HomeAccounting.WebApi.Controllers
                 user = await _userManager.FindByNameAsync(userForAuthentication.Email);
                 if (user == null)
                 {
-                    return BadRequest("Such user does not exists" );
+                    return BadRequest(new Response<UserAuthenticationRequestDTO>
+                    {
+                        Data = null,
+                        ErrorCode = HttpStatusCode.BadRequest.ToString(),
+                        ErrorMessage = ERROR_USER_DOES_NOT_EXIST,
+                        IsSuccessful = false
+                    });
                 }
             }
 
             if (!await _userManager.CheckPasswordAsync(user, userForAuthentication.Password))
-                return Unauthorized(new UserAuthenticationResponseDTO { ErrorMessage = "Invalid Password" });
+                return Unauthorized(new UserAuthenticationResponseDTO { ErrorMessage = ERROR_INVALID_PASSWORD });
 
             if (!await _userManager.IsEmailConfirmedAsync(user))
-                return Unauthorized(new UserAuthenticationResponseDTO { ErrorMessage = "Email is not confirmed" });
+                return Unauthorized(new UserAuthenticationResponseDTO { ErrorMessage = ERROR_EMAIL_IS_NOT_CONFIRMED });
 
-            var signingCredentials = _tokenService.GetSigningCredentials();
-            var claims = _tokenService.GetClaims(user);
-            var tokenOptions = _tokenService.GenerateTokenOptions(signingCredentials, claims);
-            var token = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+            var token = _tokenService.GetToken(user);
             return Ok(new UserAuthenticationResponseDTO { IsAuthSuccessful = true, Token = token });
         }
 
@@ -91,39 +107,39 @@ namespace HomeAccounting.WebApi.Controllers
                 user = await _userManager.FindByNameAsync(forgotPasswordDto.Email);
                 if (user == null)
                 {
-                    return BadRequest("Such user does not exists");
+                    return BadRequest(new Response<UserAuthenticationRequestDTO>
+                    {
+                        Data = null,
+                        ErrorCode = HttpStatusCode.BadRequest.ToString(),
+                        ErrorMessage = ERROR_USER_DOES_NOT_EXIST,
+                        IsSuccessful = false
+                    });
                 }
             }
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            var param = new Dictionary<string, string?>
-            {
-                {"token", token },
-                {"email", user.Email }
-            };
-            var callback = QueryHelpers.AddQueryString(forgotPasswordDto.ClientURI, param);
-            var textToSend = $"Dear User {user.UserName}, " + "\n" + "We got a request from you for reseting the password." + "\n" +
-                "Please, follow the next link to reset you passord:" + "\n" + callback;
-            var message = new Message(new string[] { user.Email }, "Reseting password", textToSend);
-            _emailSender.SendEmail(message);
 
+            var callback = _queryParamsService.BuildQueryString(forgotPasswordDto.ClientURI, token, user.Email);
+            await _emailBilder.GenerateEmailMessage(Domain.Enums.EmailMessageTemplate.ResetPassword, callback, user, null);
             return Ok(new ForgotPasswordResponseDto {IsPawwordReseted = true, ResetToken = token });
         }
 
         [HttpPost("ResetPassword")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto resetPasswordDto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest();
+            resetPasswordDto.Token = CorrectConfiramtionToken(resetPasswordDto.Token);
             var user = await _userManager.FindByEmailAsync(resetPasswordDto.Email);
-            if (user == null)
-                return BadRequest("Invalid Request");
             var resetPassResult = await _userManager.ResetPasswordAsync(user, resetPasswordDto.Token, resetPasswordDto.Password);
             if (!resetPassResult.Succeeded)
             {
                 var errors = resetPassResult.Errors.Select(e => e.Description);
                 return BadRequest(new { Errors = errors });
             }
-            return Ok();
+            return Ok(new Response<AppUser> { 
+                Data = user,
+                IsSuccessful = true,
+                ErrorMessage = null,
+                ErrorCode = null
+            });
         }
 
         [HttpPost("EmailConfirmation")]
@@ -132,11 +148,78 @@ namespace HomeAccounting.WebApi.Controllers
             token = CorrectConfiramtionToken(token);
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
-                return BadRequest("Such user does not exist");
+                return BadRequest(new Response<AppUser>
+                {
+                    Data = null,
+                    ErrorCode = HttpStatusCode.BadRequest.ToString(),
+                    ErrorMessage = ERROR_USER_DOES_NOT_EXIST,
+                    IsSuccessful = false
+                });
             var confirmResult = await _userManager.ConfirmEmailAsync(user, token);
             if (!confirmResult.Succeeded)
-                return BadRequest("Invalid token");
-            return Ok();
+                return BadRequest(new Response<AppUser>
+                {
+                    Data = null,
+                    ErrorCode = HttpStatusCode.BadRequest.ToString(),
+                    ErrorMessage = ERROR_INVALID_TOKEN,
+                    IsSuccessful = false
+                });
+
+            return Ok(new Response<AppUser>
+            {
+                Data = user,
+                ErrorCode = null,
+                ErrorMessage = null,
+                IsSuccessful = true
+            });
+        }
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpGet]
+        public async Task<ActionResult<UserResponseDto>> GetConcreteUser()
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+
+            var userDto = _mapper.Map<UserResponseDto>(user);
+
+            if (user == null)
+            {
+                return BadRequest(new Response<UserResponseDto>
+                {
+                    Data = null,
+                    IsSuccessful = false,
+                    ErrorCode = HttpStatusCode.BadRequest.ToString(),
+                    ErrorMessage = ERROR_USER_DOES_NOT_EXIST
+                });
+            }
+
+            return Ok(new Response<UserResponseDto>
+            {
+                Data = userDto,
+                IsSuccessful = true,
+                ErrorCode = null,
+                ErrorMessage = null
+            });
+        }
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Route("edit")]
+        [HttpPost]
+        public async Task<ActionResult> EditUSer(UserRequestDto userRequest)
+        {
+            var user = await _userManager.FindByNameAsync(userRequest.UserName);
+            /*if (user != null)
+            {
+                return BadRequest(new Response<AppUser> {Data = null, ErrorCode = HttpStatusCode.BadRequest.ToString(), 
+                ErrorMessage = ERROR_USERNAME_EXISTS, IsSuccessful = false});
+            }*/
+
+            var userId = User.GetUserId();
+            var newUser = _mapper.Map<AppUser>(userRequest);
+            await _userService.EditUser(newUser, userId);
+
+            return Ok(userRequest);
         }
 
 

@@ -1,0 +1,142 @@
+<div class="card">
+    <div class="card-body">
+        <h1 class="card-title">Add Transaction</h1>
+        <div *ngIf="isError" class="alert alert-danger" role="alert">
+            <span [innerHTML]="errorMessage"></span>
+          </div>
+        <div *ngIf="isSuccess" class="alert alert-success" role="alert">
+            <span [innerHTML]="successMessage"></span>
+        </div>
+        <form [formGroup]="ledgersForm" autocomplete="off" novalidate>
+            <div class="mb-3 row">
+                <label for="type" class="col-form-label col-sm-2">Transaction type:</label>
+                <div class="col-md-5">
+                    <select [ngModel]="type" class="form-control" id="type" formControlName="type">
+                        <option (click)="type = 0; ledgService.enableForm(ledgersForm, 'Income'); loadIncomeAccounts(1); loadOutcomeAccounts(1)" [value]="0">Income</option>
+                        <option (click)="type = 1; ledgService.enableForm(ledgersForm, 'Outcome'); loadIncomeAccounts(0); loadOutcomeAccounts(0)" [value]="1">Outcome</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="accountFrom" class="col-form-label col-sm-2">Account from:</label>
+                <div class="col-md-5">
+                    <select [ngModel]="accountFromId" class="form-control" id="accountFrom" formControlName="accountFrom">
+                        <option (click)="currencyFrom = incomeAccount.currencyId; ledgService.accountFromSelect(ledgersForm)" *ngFor="let incomeAccount of incomeAccounts" [value]="incomeAccount.id">{{incomeAccount.name }} ({{incomeAccount.currencyId}})</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="accountTo" class="col-form-label col-sm-2">Account to:</label>
+                <div class="col-md-5">
+                    <select [ngModel]="accountToId" class="form-control" id="accountTo" formControlName="accountTo">
+                        <option (click)="currencyTo = outcomeAccount.currencyId; ledgService.accountToSelect(ledgersForm, type)" *ngFor="let outcomeAccount of outcomeAccounts" [value]="outcomeAccount.id">{{outcomeAccount.name}} ({{outcomeAccount.currencyId}})</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="ammountFrom" class="col-form-label col-sm-2">Ammount from:</label>
+                <div class="col-md-5">
+                    <input [ngModel]="ammountFrom" (keyup)="func()" placeholder="Ammount from"  type="number" id="ammountFrom" formControlName="ammountFrom" class="form-control"/>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="ammountTo" class="col-form-label col-sm-2">Ammount to:</label>
+                <div class="col-md-5">
+                    <input [ngModel]="ammountTo" [placeholder]="placeholder"  type="number" id="ammountTo" formControlName="ammountTo" class="form-control"/>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="dateTime" class="col-form-label col-sm-2">Date:</label>
+                <div class="col-md-5">
+                    <input [ngModel]="dateTime" placeholder="Transaction date"  type="datetime" id="dateTime" formControlName="dateTime" class="form-control" bsDatepicker/>
+                </div>
+            </div>
+            <br>
+            <div class="mb-3 row">
+                <div class="col-md-2 mt-2">          
+                    <button type="submit" (click)="addLedger(ledgersForm.value)" class="btn btn-info" [disabled]="!isAdding || !ledgersForm.valid">Add transaction</button>
+                </div>
+                <div class="col-md-2 mt-2">
+                  <button type="submit" (click)="editLedger(ledgersForm.value, currentLedger.id)" class=" btn btn-warning" [disabled]="!isEditing || !ledgersForm.valid">Edit transaction</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<br>
+<div class="card">
+    <div class="card-body">
+        <h1 class="card-title">Get Ledgers Report</h1>
+    <form [formGroup]="ledgersReportForm"  autocomplete="off" novalidate>
+    <div class="row ml-2">
+        <label class=" mt-2" for="dateTime">Date from:</label>
+        <div class="col-md-2 mt-2">
+            <input formControlName="dateFrom" placeholder="Date from" id="dateFrom"  type="datetime" class="form-control" bsDatepicker/>
+        </div>
+        <label class=" mt-2" for="dateTime" >Date to:</label>
+        <div class="col-md-2 mt-2">
+            <input formControlName="dateTo" placeholder="Date to" id="dateTo" type="datetime" class="form-control" bsDatepicker/>
+        </div>
+        <label class=" mt-2" for="accountId" >Income account:</label>
+        <div class="col-md-2 mt-2">
+            <select class="form-control" id="accountId" formControlName="accountId">
+                <option *ngFor="let account of accountsForReport" [value]="account.id">{{account.name}} ({{account.currencyId}})</option>
+            </select>
+        </div>
+        <div class=" mt-2 ml-3">
+            <button type="submit" (click)="loadLedgers(ledgersReportForm.value, null,null,null)" [disabled]="!ledgersReportForm.valid" class="btn btn-info">Get report</button>
+        </div>
+    </div>
+</form>
+    </div></div>
+<br>
+
+<div *ngIf="isError">
+    <alert type="danger">
+        {{errorMessage}}
+    </alert>
+</div>
+
+<table *ngIf="ledgers !== null" class="table mt-2">
+    <thead>
+      <tr>
+        <th scope="col">Id</th>
+        <th scope="col">Account from</th>
+        <th scope="col">Account to</th>
+        <th scope="col">Sum from</th>
+        <th scope="col">Sum to</th>
+        <th scope="col">Type</th>
+        <th scope="col">Date time</th>
+        <th scope="col">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let ledger of ledgers">
+            <th scope="col">{{ledger.id}}</th>
+            <td>{{ledger.accountNameFrom}} ({{ledger.currencyFrom}})</td>
+            <td>{{ledger.accountNameTo}} ({{ledger.currencyTo}})</td>
+            <td>{{ledger.ammountFrom}} {{ledger.currencyFrom}}</td>
+            <td>{{ledger.ammountTo}} {{ledger.currencyTo}}</td>
+            <td style="color: green;" *ngIf="ledger.typeString === 'Debet'"><b>+</b></td>
+            <td style="color: red;" *ngIf="ledger.typeString === 'Credit'"><b>-</b></td>
+            <td>{{ledger.dateTime | date}}</td>
+            <td><div class="mb-3 row" >
+                <div class="col-md-2 mt-2 ml-4">
+                  <button style="width: 70px;" type="submit" (click)="getLedger(ledger.id)" class=" btn btn-primary">Edit</button>
+                </div>
+                <div class="col-md-2 mt-2 ml-4">
+                  <button style="width: 70px;" type="submit" (click)="openModalOnDelete(template, ledger.id)" class=" btn btn-danger">Delete</button>
+                </div>
+              </div></td>
+        </tr>
+    </tbody>
+</table>
+
+<ng-template #template>
+    <div class="modal-body text-center">
+      <p>Do you want to delete this ledger?</p>
+      <button type="button" class="btn btn-default" (click)="deleteLedger(currentLedger.id)" >Yes</button>
+      <button type="button" class="btn btn-primary" (click)="decline()" >No</button>
+    </div>
+  </ng-template>

@@ -25,5 +25,6 @@ namespace HomeAccounting.Domain.Db
         public DbSet<TransactionCategory> TransactionCategories { get; set; }
         public DbSet<Account> Accounts { get; set; }
         public DbSet<OutcomeLimit> OutcomeLimits { get; set; }
+        public DbSet<HtmlSenderTemplate> HtmlSenderTemplates { get; set; }
     }
 }

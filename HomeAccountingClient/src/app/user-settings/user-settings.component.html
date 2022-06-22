@@ -1,0 +1,43 @@
+<div class="card">
+    <div class="card-body">
+        <h1 class="card-title">Current user settings</h1>
+        <table class="table mt-2">
+            <thead>
+                <tr>
+                    <th scope="col">Username</th>
+                    <th scope="col">Current currency</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{appUser.userName}}</td>
+                    <td>{{appUser.mainCurrencyId}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h1 class="card-title">Change current user settings</h1>
+        <form [formGroup]="settingsForm" autocomplete="off" novalidate>
+            <div class="mb-3 row">
+                <label for="userName" class="col-form-label col-sm-2">User name:</label>
+                <div class="col-md-5">
+                    <input placeholder="Username"  type="text" id="userName" formControlName="userName" class="form-control"/>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="currency" class="col-formlabel col-sm-2">User's currency</label>
+                <div class="col-md-5">
+                    <select class="form-control" formControlName="currency">
+                        <option *ngFor="let currency of currencies">{{currency.id}}</option>
+                    </select>
+                </div>
+            </div>
+            <br>
+            <div class="mb-3 row">
+                <div class="col-md-2"> 
+                    <button type="submit" (click)="editSettings(settingsForm.value)" [disabled]="!settingsForm.valid" class="btn btn-success">Edit user</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
